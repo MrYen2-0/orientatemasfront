@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 class AppTextStyles {
-  // Display Large (H1)
   static const TextStyle h1 = TextStyle(
     fontFamily: 'Inter',
     fontSize: 32,
@@ -12,7 +11,6 @@ class AppTextStyles {
     color: AppColors.gray900,
   );
 
-  // Display Medium (H2)
   static const TextStyle h2 = TextStyle(
     fontFamily: 'Inter',
     fontSize: 24,
@@ -22,7 +20,6 @@ class AppTextStyles {
     color: AppColors.gray900,
   );
 
-  // Headline (H3)
   static const TextStyle h3 = TextStyle(
     fontFamily: 'Inter',
     fontSize: 20,
@@ -31,7 +28,6 @@ class AppTextStyles {
     color: AppColors.gray900,
   );
 
-  // Title (H4)
   static const TextStyle h4 = TextStyle(
     fontFamily: 'Inter',
     fontSize: 18,
@@ -40,7 +36,6 @@ class AppTextStyles {
     color: AppColors.gray900,
   );
 
-  // Body Large
   static const TextStyle bodyLarge = TextStyle(
     fontFamily: 'Inter',
     fontSize: 16,
@@ -49,7 +44,6 @@ class AppTextStyles {
     color: AppColors.gray700,
   );
 
-  // Body Medium (Default)
   static const TextStyle bodyMedium = TextStyle(
     fontFamily: 'Inter',
     fontSize: 14,
@@ -58,7 +52,6 @@ class AppTextStyles {
     color: AppColors.gray700,
   );
 
-  // Body Small
   static const TextStyle bodySmall = TextStyle(
     fontFamily: 'Inter',
     fontSize: 12,
@@ -67,7 +60,6 @@ class AppTextStyles {
     color: AppColors.gray600,
   );
 
-  // Button Text
   static const TextStyle buttonText = TextStyle(
     fontFamily: 'Inter',
     fontSize: 16,
@@ -76,7 +68,6 @@ class AppTextStyles {
     letterSpacing: 0.25,
   );
 
-  // Label
   static const TextStyle label = TextStyle(
     fontFamily: 'Inter',
     fontSize: 14,
@@ -86,7 +77,6 @@ class AppTextStyles {
     color: AppColors.gray700,
   );
 
-  // Overline
   static const TextStyle overline = TextStyle(
     fontFamily: 'Inter',
     fontSize: 12,

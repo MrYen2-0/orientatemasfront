@@ -1,13 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'core/theme/app_theme.dart';
-import 'screens/splash/splash_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-void main() {
+// Core
+import 'core/theme/app_theme.dart';
+
+// Data - Dependency Injection
+import 'data/di.dart' as di;
+
+// Presentation - BLoCs
+import 'presentation/bloc/auth/auth_bloc.dart';
+
+// Presentation - Pages
+import 'presentation/pages/splash_page.dart';
+import 'presentation/pages/login_page.dart';
+import 'presentation/pages/home_page.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Inicializar dependencias (GetIt)
+  await di.initializeDependencies();
+
   // Configurar orientación (solo portrait)
-  SystemChrome.setPreferredOrientations([
+  await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
@@ -24,15 +40,22 @@ void main() {
 }
 
 class OrientaApp extends StatelessWidget {
-  const OrientaApp({Key? key}) : super(key: key);
+  const OrientaApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Orienta+',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      home: const SplashScreen(),
+    return BlocProvider(
+      create: (_) => di.sl<AuthBloc>(),
+      child: MaterialApp(
+        title: 'Orienta+ | Sistema Profesional de Orientación Vocacional',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        home: const SplashPage(),
+        routes: {
+          '/login': (_) => const LoginPage(),
+          '/home': (_) => const HomePage(),
+        },
+      ),
     );
   }
 }

@@ -11,7 +11,6 @@ class AppTheme {
         secondary: AppColors.secondary600,
         tertiary: AppColors.accent600,
         surface: AppColors.white,
-        background: AppColors.gray50,
         error: AppColors.error600,
       ),
       scaffoldBackgroundColor: AppColors.white,

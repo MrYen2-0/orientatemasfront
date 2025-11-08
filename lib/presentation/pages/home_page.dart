@@ -5,7 +5,6 @@ import 'notifications_page.dart';
 import 'profile_page.dart';
 import 'settings_page.dart';
 import 'explore_careers_page.dart';
-import 'testimonials_page.dart';
 import 'universities_page.dart';
 import 'preparation_guide_page.dart';
 
@@ -188,18 +187,6 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 16),
 
-            _buildResourceCard(
-              'Testimonios de egresados',
-              'Lee experiencias reales de profesionales',
-              Icons.school,
-                  () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const TestimonialsPage(),
-                  ),
-                );
-              },
-            ),
             _buildResourceCard(
               'Universidades recomendadas',
               'Explora opciones en tu estado',

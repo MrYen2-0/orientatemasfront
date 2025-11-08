@@ -21,12 +21,12 @@ class User extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        email,
-        name,
-        semester,
-        state,
-        createdAt,
-        hasCompletedEvaluation,
-      ];
+    id,
+    email,
+    name,
+    semester,
+    state,
+    createdAt,
+    hasCompletedEvaluation,
+  ];
 }

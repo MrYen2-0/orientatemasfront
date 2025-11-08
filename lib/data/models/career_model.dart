@@ -1,31 +1,40 @@
-import '../../domain/entities/career.dart';
+class CareerModel {
+  final String id;
+  final String name;
+  final String category;
+  final String description;
+  final double compatibilityScore;
+  final List<String> skills;
+  final String demand;
+  final String salaryRange;
+  final String duration;
+  final bool isSaved;
 
-class CareerModel extends Career {
-  const CareerModel({
-    required super.id,
-    required super.name,
-    required super.description,
-    required super.category,
-    required super.iconPath,
-    super.compatibilityPercentage,
-    required super.requiredSkills,
-    required super.relatedUniversities,
-    required super.averageSalary,
-    required super.employmentOutlook,
+  CareerModel({
+    required this.id,
+    required this.name,
+    required this.category,
+    required this.description,
+    this.compatibilityScore = 0.0,
+    required this.skills,
+    required this.demand,
+    required this.salaryRange,
+    required this.duration,
+    this.isSaved = false,
   });
 
   factory CareerModel.fromJson(Map<String, dynamic> json) {
     return CareerModel(
       id: json['id'] as String,
       name: json['name'] as String,
-      description: json['description'] as String,
       category: json['category'] as String,
-      iconPath: json['iconPath'] as String,
-      compatibilityPercentage: (json['compatibilityPercentage'] as num?)?.toDouble() ?? 0.0,
-      requiredSkills: List<String>.from(json['requiredSkills'] as List),
-      relatedUniversities: List<String>.from(json['relatedUniversities'] as List),
-      averageSalary: json['averageSalary'] as String,
-      employmentOutlook: json['employmentOutlook'] as String,
+      description: json['description'] as String,
+      compatibilityScore: (json['compatibilityScore'] as num?)?.toDouble() ?? 0.0,
+      skills: (json['skills'] as List<dynamic>).map((e) => e as String).toList(),
+      demand: json['demand'] as String,
+      salaryRange: json['salaryRange'] as String,
+      duration: json['duration'] as String,
+      isSaved: json['isSaved'] as bool? ?? false,
     );
   }
 
@@ -33,29 +42,40 @@ class CareerModel extends Career {
     return {
       'id': id,
       'name': name,
-      'description': description,
       'category': category,
-      'iconPath': iconPath,
-      'compatibilityPercentage': compatibilityPercentage,
-      'requiredSkills': requiredSkills,
-      'relatedUniversities': relatedUniversities,
-      'averageSalary': averageSalary,
-      'employmentOutlook': employmentOutlook,
+      'description': description,
+      'compatibilityScore': compatibilityScore,
+      'skills': skills,
+      'demand': demand,
+      'salaryRange': salaryRange,
+      'duration': duration,
+      'isSaved': isSaved,
     };
   }
 
-  factory CareerModel.fromEntity(Career career) {
+  CareerModel copyWith({
+    String? id,
+    String? name,
+    String? category,
+    String? description,
+    double? compatibilityScore,
+    List<String>? skills,
+    String? demand,
+    String? salaryRange,
+    String? duration,
+    bool? isSaved,
+  }) {
     return CareerModel(
-      id: career.id,
-      name: career.name,
-      description: career.description,
-      category: career.category,
-      iconPath: career.iconPath,
-      compatibilityPercentage: career.compatibilityPercentage,
-      requiredSkills: career.requiredSkills,
-      relatedUniversities: career.relatedUniversities,
-      averageSalary: career.averageSalary,
-      employmentOutlook: career.employmentOutlook,
+      id: id ?? this.id,
+      name: name ?? this.name,
+      category: category ?? this.category,
+      description: description ?? this.description,
+      compatibilityScore: compatibilityScore ?? this.compatibilityScore,
+      skills: skills ?? this.skills,
+      demand: demand ?? this.demand,
+      salaryRange: salaryRange ?? this.salaryRange,
+      duration: duration ?? this.duration,
+      isSaved: isSaved ?? this.isSaved,
     );
   }
 }

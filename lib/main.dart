@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 // Core
 import 'core/theme/app_theme.dart';
@@ -8,13 +8,19 @@ import 'core/theme/app_theme.dart';
 // Data - Dependency Injection
 import 'data/di.dart' as di;
 
-// Presentation - BLoCs
-import 'presentation/bloc/auth/auth_bloc.dart';
+// Presentation - Providers (REEMPLAZA BLOC)
+import 'presentation/providers/auth_provider.dart';
+import 'presentation/providers/evaluation_provider.dart';
+import 'presentation/providers/career_provider.dart';
+import 'presentation/providers/profile_provider.dart';
+import 'presentation/providers/notification_provider.dart';
 
 // Presentation - Pages
 import 'presentation/pages/splash_page.dart';
 import 'presentation/pages/login_page.dart';
 import 'presentation/pages/home_page.dart';
+import 'presentation/pages/register_page.dart'; // AGREGAR IMPORT
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,8 +50,32 @@ class OrientaApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => di.sl<AuthBloc>(),
+    return MultiProvider(
+      providers: [
+        // Auth Provider (REEMPLAZA AuthBloc)
+        ChangeNotifierProvider(
+          create: (_) => di.sl<AuthProvider>()..initialize(),        ),
+
+        // Evaluation Provider
+        ChangeNotifierProvider(
+          create: (_) => di.sl<EvaluationProvider>(),
+        ),
+
+        // Career Provider
+        ChangeNotifierProvider(
+          create: (_) => di.sl<CareerProvider>(),
+        ),
+
+        // Profile Provider
+        ChangeNotifierProvider(
+          create: (_) => di.sl<ProfileProvider>(),
+        ),
+
+        // Notification Provider
+        ChangeNotifierProvider(
+          create: (_) => di.sl<NotificationProvider>(),
+        ),
+      ],
       child: MaterialApp(
         title: 'Orienta+ | Sistema Profesional de Orientación Vocacional',
         debugShowCheckedModeBanner: false,
@@ -54,6 +84,8 @@ class OrientaApp extends StatelessWidget {
         routes: {
           '/login': (_) => const LoginPage(),
           '/home': (_) => const HomePage(),
+          '/register': (_) => const RegisterPage(), // AGREGAR ESTA LÍNEA
+
         },
       ),
     );

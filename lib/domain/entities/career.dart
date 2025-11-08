@@ -5,37 +5,48 @@ class Career extends Equatable {
   final String name;
   final String description;
   final String category;
-  final String iconPath;
-  final double compatibilityPercentage;
-  final List<String> requiredSkills;
-  final List<String> relatedUniversities;
-  final String averageSalary;
-  final String employmentOutlook;
+  final List<String> skills;
+  final int compatibilityScore;
+  final bool isSaved;
 
   const Career({
     required this.id,
     required this.name,
     required this.description,
     required this.category,
-    required this.iconPath,
-    this.compatibilityPercentage = 0.0,
-    required this.requiredSkills,
-    required this.relatedUniversities,
-    required this.averageSalary,
-    required this.employmentOutlook,
+    required this.skills,
+    this.compatibilityScore = 0,
+    this.isSaved = false,
   });
+
+  Career copyWith({
+    String? id,
+    String? name,
+    String? description,
+    String? category,
+    List<String>? skills,
+    int? compatibilityScore,
+    bool? isSaved,
+  }) {
+    return Career(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      category: category ?? this.category,
+      skills: skills ?? this.skills,
+      compatibilityScore: compatibilityScore ?? this.compatibilityScore,
+      isSaved: isSaved ?? this.isSaved,
+    );
+  }
 
   @override
   List<Object?> get props => [
-        id,
-        name,
-        description,
-        category,
-        iconPath,
-        compatibilityPercentage,
-        requiredSkills,
-        relatedUniversities,
-        averageSalary,
-        employmentOutlook,
-      ];
+    id,
+    name,
+    description,
+    category,
+    skills,
+    compatibilityScore,
+    isSaved,
+  ];
 }

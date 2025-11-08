@@ -29,6 +29,7 @@ class AuthRepositoryImpl implements AuthRepository {
           email: email,
           password: password,
         );
+        // UserModel extiende User, así que podemos pasarlo directamente
         await localDataSource.cacheUser(user);
         return Right(user);
       } on ServerException {
@@ -58,6 +59,7 @@ class AuthRepositoryImpl implements AuthRepository {
           semester: semester,
           state: state,
         );
+        // UserModel extiende User, así que podemos pasarlo directamente
         await localDataSource.cacheUser(user);
         return Right(user);
       } on ServerException {

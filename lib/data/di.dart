@@ -7,6 +7,8 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import '../domain/repositories/auth_repository.dart';
 import '../domain/usecases/login_usecase.dart';
 import '../domain/usecases/register_usecase.dart';
+import '../domain/usecases/logout_usecase.dart';
+import '../domain/usecases/get_current_user_usecase.dart';
 
 // Data
 import '../data/repositories/auth_repository_impl.dart';
@@ -16,8 +18,8 @@ import '../data/datasource/local/auth_local_datasource.dart';
 // Core
 import '../core/network/network_info.dart';
 
-// Presentation
-import '../presentation/bloc/auth/auth_bloc.dart';
+// Presentation - PROVIDERS (no BLoCs)
+import '../presentation/providers/auth_provider.dart';
 
 final sl = GetIt.instance;
 
@@ -27,11 +29,11 @@ Future<void> initializeDependencies() async {
   // ============================================
   // External Dependencies (Third-party packages)
   // ============================================
-  
+
   // SharedPreferences
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
-  
+
   // Dio (HTTP client)
   sl.registerLazySingleton(() {
     final dio = Dio(BaseOptions(
@@ -43,7 +45,7 @@ Future<void> initializeDependencies() async {
         'Accept': 'application/json',
       },
     ));
-    
+
     // Interceptores para logging y manejo de tokens
     dio.interceptors.add(LogInterceptor(
       request: true,
@@ -51,41 +53,41 @@ Future<void> initializeDependencies() async {
       responseBody: true,
       error: true,
     ));
-    
+
     return dio;
   });
-  
+
   // Connectivity
   sl.registerLazySingleton(() => Connectivity());
 
   // ============================================
   // Core
   // ============================================
-  
+
   sl.registerLazySingleton<NetworkInfo>(
-    () => NetworkInfoImpl(sl()),
+        () => NetworkInfoImpl(sl()),
   );
 
   // ============================================
   // Data Sources
   // ============================================
-  
+
   // Remote Data Sources
   sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(dio: sl()),
+        () => AuthRemoteDataSourceImpl(dio: sl()),
   );
-  
+
   // Local Data Sources
   sl.registerLazySingleton<AuthLocalDataSource>(
-    () => AuthLocalDataSourceImpl(sharedPreferences: sl()),
+        () => AuthLocalDataSourceImpl(sharedPreferences: sl()),
   );
 
   // ============================================
   // Repositories
   // ============================================
-  
+
   sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(
+        () => AuthRepositoryImpl(
       remoteDataSource: sl(),
       localDataSource: sl(),
       networkInfo: sl(),
@@ -95,19 +97,23 @@ Future<void> initializeDependencies() async {
   // ============================================
   // Use Cases
   // ============================================
-  
+
   sl.registerLazySingleton(() => LoginUseCase(sl()));
   sl.registerLazySingleton(() => RegisterUseCase(sl()));
+  sl.registerLazySingleton(() => LogoutUseCase(sl()));
+  sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
 
   // ============================================
-  // BLoCs
+  // PROVIDERS (reemplaza BLoCs)
   // ============================================
-  
-  // Factory porque necesitamos una instancia nueva cada vez
+
+  // ChangeNotifier - usa Factory para crear nueva instancia cada vez
   sl.registerFactory(
-    () => AuthBloc(
+        () => AuthProvider(
       loginUseCase: sl(),
       registerUseCase: sl(),
+      logoutUseCase: sl(),
+      getCurrentUserUseCase: sl(),
     ),
   );
 }

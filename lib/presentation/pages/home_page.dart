@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../providers/auth_provider.dart';
 import 'notifications_page.dart';
 import 'profile_page.dart';
 import 'settings_page.dart';
@@ -20,6 +22,22 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+    final user = authProvider.user;
+
+    // 👇 AGREGAR ESTA VERIFICACIÓN AL INICIO
+    // Si es tutor pero no ha completado el registro del menor, redirigir
+    if (user != null && user.isTutor && !user.isRegistrationComplete) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).pushReplacementNamed('/student-register');
+      });
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.gray50,
       appBar: AppBar(
@@ -52,7 +70,7 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(width: 12),
             Text(
-              'ORIENTA+',
+              'ORIENTATE+',
               style: AppTextStyles.h4.copyWith(
                 color: AppColors.primary600,
                 fontWeight: FontWeight.w700,

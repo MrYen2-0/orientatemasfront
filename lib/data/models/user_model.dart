@@ -9,6 +9,12 @@ class UserModel extends User {
     super.state,
     required super.createdAt,
     super.hasCompletedEvaluation,
+    super.isTutor,
+    super.phone,
+    super.relationship,
+    super.minorName,
+    super.minorEmail,
+    super.minorBirthdate,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -20,6 +26,12 @@ class UserModel extends User {
       state: json['state'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
       hasCompletedEvaluation: json['hasCompletedEvaluation'] as bool? ?? false,
+      isTutor: json['isTutor'] as bool? ?? false,
+      phone: json['phone'] as String?,
+      relationship: json['relationship'] as String?,
+      minorName: json['minorName'] as String?,
+      minorEmail: json['minorEmail'] as String?,
+      minorBirthdate: json['minorBirthdate'] as String?,
     );
   }
 
@@ -32,6 +44,12 @@ class UserModel extends User {
       'state': state,
       'createdAt': createdAt.toIso8601String(),
       'hasCompletedEvaluation': hasCompletedEvaluation,
+      'isTutor': isTutor,
+      'phone': phone,
+      'relationship': relationship,
+      'minorName': minorName,
+      'minorEmail': minorEmail,
+      'minorBirthdate': minorBirthdate,
     };
   }
 
@@ -44,6 +62,12 @@ class UserModel extends User {
       state: user.state,
       createdAt: user.createdAt,
       hasCompletedEvaluation: user.hasCompletedEvaluation,
+      isTutor: user.isTutor,
+      phone: user.phone,
+      relationship: user.relationship,
+      minorName: user.minorName,
+      minorEmail: user.minorEmail,
+      minorBirthdate: user.minorBirthdate,
     );
   }
 }

@@ -14,6 +14,11 @@ enum AuthStatus {
   error,
 }
 
+enum UserType {
+  student,
+  tutor,
+}
+
 class AuthProvider extends ChangeNotifier {
   final LoginUseCase loginUseCase;
   final RegisterUseCase registerUseCase;
@@ -32,6 +37,10 @@ class AuthProvider extends ChangeNotifier {
   User? _user;
   String? _errorMessage;
   bool _isLoading = false;
+  UserType _userType = UserType.student;
+
+  // Datos temporales del tutor (para vincular con el menor)
+  Map<String, dynamic>? _tutorData;
 
   // Getters
   AuthStatus get status => _status;
@@ -39,26 +48,37 @@ class AuthProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _status == AuthStatus.authenticated;
+  UserType get userType => _userType;
+  bool get isTutor => _userType == UserType.tutor;
 
   /// Inicializar - Verificar si hay usuario en sesión
   Future<void> initialize() async {
     _status = AuthStatus.loading;
     notifyListeners();
 
-    final result = await getCurrentUserUseCase();
+    try {
+      final result = await getCurrentUserUseCase();
 
-    result.fold(
-          (failure) {
-        _status = AuthStatus.unauthenticated;
-        _user = null;
-        notifyListeners();
-      },
-          (user) {
-        _status = AuthStatus.authenticated;
-        _user = user;
-        notifyListeners();
-      },
-    );
+      result.fold(
+            (failure) {
+          _status = AuthStatus.unauthenticated;
+          _user = null;
+          notifyListeners();
+        },
+            (user) {
+          _status = AuthStatus.authenticated;
+          _user = user;
+          _userType = user.isTutor ? UserType.tutor : UserType.student;
+          notifyListeners();
+        },
+      );
+    } catch (e) {
+      // Si hay error de conexión, simplemente marcar como no autenticado
+      print('⚠️ Error en initialize: $e');
+      _status = AuthStatus.unauthenticated;
+      _user = null;
+      notifyListeners();
+    }
   }
 
   /// Login
@@ -86,6 +106,7 @@ class AuthProvider extends ChangeNotifier {
         _setLoading(false);
         _status = AuthStatus.authenticated;
         _user = user;
+        _userType = user.isTutor ? UserType.tutor : UserType.student;
         _errorMessage = null;
         notifyListeners();
         return true;
@@ -93,15 +114,13 @@ class AuthProvider extends ChangeNotifier {
     );
   }
 
-  /// ✅ Login Demo (AGREGAR ESTE MÉTODO)
+  /// Login Demo
   Future<bool> loginDemo() async {
     _setLoading(true);
     _errorMessage = null;
 
-    // Simular delay de red
     await Future.delayed(const Duration(seconds: 1));
 
-    // Crear usuario demo
     final demoUser = User(
       id: 'demo-123',
       email: 'demo@orientaplus.com',
@@ -115,13 +134,14 @@ class AuthProvider extends ChangeNotifier {
     _setLoading(false);
     _status = AuthStatus.authenticated;
     _user = demoUser;
+    _userType = UserType.student;
     _errorMessage = null;
     notifyListeners();
 
     return true;
   }
 
-  /// Register
+  /// Register (Estudiante regular) - DEPRECADO, ahora solo se registran tutores
   Future<bool> register({
     required String email,
     required String password,
@@ -152,6 +172,7 @@ class AuthProvider extends ChangeNotifier {
         _setLoading(false);
         _status = AuthStatus.authenticated;
         _user = user;
+        _userType = UserType.student;
         _errorMessage = null;
         notifyListeners();
         return true;
@@ -159,25 +180,149 @@ class AuthProvider extends ChangeNotifier {
     );
   }
 
+  /// ✅ NUEVO: Registrar Tutor
+  Future<bool> registerTutor({
+    required String email,
+    required String password,
+    required String name,
+    required String phone,
+    required String relationship,
+  }) async {
+    _setLoading(true);
+    _errorMessage = null;
+
+    try {
+      print('📝 Registrando tutor: $name');
+
+      // TODO: Aquí irá la llamada real al backend cuando esté listo
+      // Por ahora simulamos el registro
+      await Future.delayed(const Duration(seconds: 1));
+
+      // Guardar datos temporales del tutor
+      _tutorData = {
+        'email': email,
+        'password': password,
+        'name': name,
+        'phone': phone,
+        'relationship': relationship,
+      };
+
+      // Crear usuario temporal del tutor
+      final tutorUser = User(
+        id: 'temp-tutor-${DateTime.now().millisecondsSinceEpoch}',
+        email: email,
+        name: name,
+        phone: phone,
+        relationship: relationship,
+        isTutor: true,
+        createdAt: DateTime.now(),
+        hasCompletedEvaluation: false,
+      );
+
+      _setLoading(false);
+      _status = AuthStatus.authenticated;
+      _user = tutorUser;
+      _userType = UserType.tutor;
+      _errorMessage = null;
+
+      print('✅ Tutor registrado exitosamente');
+      notifyListeners();
+
+      return true;
+    } catch (e) {
+      print('❌ Error al registrar tutor: $e');
+      _setLoading(false);
+      _status = AuthStatus.error;
+      _errorMessage = 'Error al registrar tutor: ${e.toString()}';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// ✅ NUEVO: Registrar Menor (vinculado al tutor)
+  Future<bool> registerMinor({
+    required String name,
+    String? email,
+    required String birthdate,
+    required String semester,
+    required String state,
+  }) async {
+    if (_tutorData == null) {
+      _errorMessage = 'No hay datos del tutor disponibles';
+      notifyListeners();
+      return false;
+    }
+
+    _setLoading(true);
+    _errorMessage = null;
+
+    try {
+      print('📝 Registrando menor: $name');
+
+      // TODO: Aquí irá la llamada real al backend cuando esté listo
+      // Por ahora simulamos el registro
+      await Future.delayed(const Duration(seconds: 1));
+
+      // Crear usuario completo con datos del tutor y menor
+      final completeUser = User(
+        id: 'tutor-${DateTime.now().millisecondsSinceEpoch}',
+        email: _tutorData!['email'],
+        name: _tutorData!['name'],
+        phone: _tutorData!['phone'],
+        relationship: _tutorData!['relationship'],
+        isTutor: true,
+        minorName: name,
+        minorEmail: email,
+        minorBirthdate: birthdate,
+        semester: semester,
+        state: state,
+        createdAt: DateTime.now(),
+        hasCompletedEvaluation: false,
+      );
+
+      _setLoading(false);
+      _status = AuthStatus.authenticated;
+      _user = completeUser;
+      _userType = UserType.tutor;
+      _errorMessage = null;
+      _tutorData = null; // Limpiar datos temporales
+
+      print('✅ Menor registrado exitosamente');
+      notifyListeners();
+
+      return true;
+    } catch (e) {
+      print('❌ Error al registrar menor: $e');
+      _setLoading(false);
+      _status = AuthStatus.error;
+      _errorMessage = 'Error al registrar menor: ${e.toString()}';
+      notifyListeners();
+      return false;
+    }
+  }
+
   /// Logout
-  Future<void> logout() async {
+  Future<bool> logout() async {
     _setLoading(true);
 
     final result = await logoutUseCase();
 
-    result.fold(
+    return result.fold(
           (failure) {
         _setLoading(false);
-        // Aún así cerrar sesión localmente
-        _status = AuthStatus.unauthenticated;
-        _user = null;
+        _errorMessage = _mapFailureToMessage(failure);
         notifyListeners();
+        return false;
       },
           (_) {
         _setLoading(false);
         _status = AuthStatus.unauthenticated;
         _user = null;
+        _tutorData = null;
+        _userType = UserType.student;
+        _errorMessage = null;
         notifyListeners();
+        return true;
       },
     );
   }
@@ -185,27 +330,24 @@ class AuthProvider extends ChangeNotifier {
   /// Limpiar error
   void clearError() {
     _errorMessage = null;
-    if (_status == AuthStatus.error) {
-      _status = AuthStatus.unauthenticated;
-    }
     notifyListeners();
   }
 
-  // Helpers privados
+  /// Setters privados
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
   }
 
+  /// Mapear failures a mensajes
   String _mapFailureToMessage(Failure failure) {
     if (failure is ServerFailure) {
-      return failure.message;
+      return failure.message ?? 'Error del servidor';
     } else if (failure is NetworkFailure) {
-      return 'No hay conexión a internet';
+      return failure.message ?? 'Sin conexión a internet';
     } else if (failure is CacheFailure) {
-      return 'Error al guardar datos localmente';
-    } else {
-      return 'Ha ocurrido un error inesperado';
+      return failure.message ?? 'Error de caché';
     }
+    return 'Error desconocido';
   }
 }

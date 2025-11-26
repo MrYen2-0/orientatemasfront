@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:integradorfront/presentation/providers/questionnaire_provider.dart';
 import 'package:provider/provider.dart';
 
 // Core
@@ -8,7 +9,6 @@ import 'core/theme/app_theme.dart';
 // Data - Dependency Injection
 import 'data/di.dart' as di;
 
-// Presentation - Providers (REEMPLAZA BLOC)
 import 'presentation/providers/auth_provider.dart';
 import 'presentation/providers/evaluation_provider.dart';
 import 'presentation/providers/career_provider.dart';
@@ -20,7 +20,6 @@ import 'presentation/pages/splash_page.dart';
 import 'presentation/pages/login_page.dart';
 import 'presentation/pages/home_page.dart';
 import 'presentation/pages/register_page.dart'; // AGREGAR IMPORT
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,27 +53,21 @@ class OrientaApp extends StatelessWidget {
       providers: [
         // Auth Provider (REEMPLAZA AuthBloc)
         ChangeNotifierProvider(
-          create: (_) => di.sl<AuthProvider>()..initialize(),        ),
+          create: (_) => di.sl<AuthProvider>()..initialize(),
+        ),
 
         // Evaluation Provider
-        ChangeNotifierProvider(
-          create: (_) => di.sl<EvaluationProvider>(),
-        ),
+        ChangeNotifierProvider(create: (_) => di.sl<EvaluationProvider>()),
 
         // Career Provider
-        ChangeNotifierProvider(
-          create: (_) => di.sl<CareerProvider>(),
-        ),
+        ChangeNotifierProvider(create: (_) => di.sl<CareerProvider>()),
 
         // Profile Provider
-        ChangeNotifierProvider(
-          create: (_) => di.sl<ProfileProvider>(),
-        ),
+        ChangeNotifierProvider(create: (_) => di.sl<ProfileProvider>()),
 
         // Notification Provider
-        ChangeNotifierProvider(
-          create: (_) => di.sl<NotificationProvider>(),
-        ),
+        ChangeNotifierProvider(create: (_) => di.sl<NotificationProvider>()),
+        ChangeNotifierProvider(create: (_) => QuestionnaireProvider()),
       ],
       child: MaterialApp(
         title: 'Orienta+ | Sistema Profesional de Orientación Vocacional',
@@ -84,8 +77,7 @@ class OrientaApp extends StatelessWidget {
         routes: {
           '/login': (_) => const LoginPage(),
           '/home': (_) => const HomePage(),
-          '/register': (_) => const RegisterPage(), // AGREGAR ESTA LÍNEA
-
+          '/register': (_) => const RegisterPage(),
         },
       ),
     );

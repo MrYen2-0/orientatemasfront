@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../providers/questionnaire_provider.dart';
 import '../providers/auth_provider.dart';
 import 'notifications_page.dart';
 import 'profile_page.dart';
@@ -9,6 +10,8 @@ import 'settings_page.dart';
 import 'explore_careers_page.dart';
 import 'universities_page.dart';
 import 'preparation_guide_page.dart';
+import 'questionnaire_page.dart';
+import 'questionnaire_results_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,7 +21,27 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool _hasCompletedEvaluation = true; // Cambiar a true para ver resultados
+  @override
+  void initState() {
+    super.initState();
+    // Diferir la carga hasta después del primer frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkForExistingSession();
+    });
+  }
+
+  Future<void> _checkForExistingSession() async {
+    if (!mounted) return; // Verificar que el widget sigue montado
+    
+    final provider = context.read<QuestionnaireProvider>();
+    
+    // Intentar restaurar sesión completada más reciente
+    final completedSessions = await provider.getCompletedSessions();
+    if (completedSessions.isNotEmpty && mounted) {
+      final lastSession = completedSessions.first;
+      await provider.loadResults(lastSession.sessionId);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,202 +112,238 @@ class _HomePageState extends State<HomePage> {
                     MaterialPageRoute(
                       builder: (_) => const NotificationsPage(),
                     ),
-                  );
-                },
-              ),
-              Positioned(
-                right: 10,
-                top: 10,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: AppColors.error600,
-                    shape: BoxShape.circle,
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Sección de bienvenida
-            Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    AppColors.primary50,
-                    AppColors.white,
-                  ],
+                const SizedBox(width: 12),
+                Text(
+                  'ORIENTA+',
+                  style: AppTextStyles.h4.copyWith(
+                    color: AppColors.primary600,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              ],
+            ),
+            actions: [
+              Stack(
                 children: [
-                  Text(
-                    'Bienvenido, Usuario',
-                    style: AppTextStyles.h2,
+                  IconButton(
+                    icon: const Icon(Icons.notifications_outlined),
+                    color: AppColors.gray900,
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const NotificationsPage(),
+                        ),
+                      );
+                    },
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Descubre tu carrera ideal',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.gray600,
+                  Positioned(
+                    right: 10,
+                    top: 10,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: AppColors.error600,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
-
-            // Card principal
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: _hasCompletedEvaluation
-                  ? _buildCompletedEvaluationCard()
-                  : _buildStartEvaluationCard(),
-            ),
-
-            // Sección "Tus Resultados" (NUEVO)
-            if (_hasCompletedEvaluation) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    Text(
-                      'Tus Resultados Vocacionales',
-                      style: AppTextStyles.h3,
-                    ),
-                    const Spacer(),
-                    TextButton(
-                      onPressed: () {
-                        // TODO: Ver todos los resultados
-                      },
-                      child: Text(
-                        'Ver todo',
-                        style: TextStyle(color: AppColors.primary600),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Gráfica de compatibilidad
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: _buildCompatibilityChart(),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Top 3 carreras recomendadas
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: _buildTopCareers(),
-              ),
-
-              const SizedBox(height: 24),
+              const SizedBox(width: 8),
             ],
+          ),
+          body: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Sección de bienvenida
+                Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        AppColors.primary50,
+                        AppColors.white,
+                      ],
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Bienvenido, Usuario',
+                        style: AppTextStyles.h2,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Descubre tu carrera ideal',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.gray600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
-            // Sección "Recursos útiles" (ACTUALIZADO - FUNCIONAL)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Recursos Útiles',
-                style: AppTextStyles.h3,
+                // Card principal
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: hasCompletedEvaluation
+                      ? _buildCompletedEvaluationCard(questionnaireProvider)
+                      : _buildStartEvaluationCard(),
+                ),
+
+                // Sección "Tus Resultados"
+                if (hasCompletedEvaluation && 
+                    questionnaireProvider.results != null) ...[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Tus Resultados Vocacionales',
+                          style: AppTextStyles.h3,
+                        ),
+                        const Spacer(),
+                        TextButton(
+                          onPressed: () async {
+                            final sessions = await questionnaireProvider
+                                .getCompletedSessions();
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    '${sessions.length} evaluaciones completadas',
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          child: Text(
+                            'Ver todo',
+                            style: TextStyle(color: AppColors.primary600),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Gráfica de compatibilidad
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: _buildCompatibilityChart(questionnaireProvider),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Top 3 carreras recomendadas
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: _buildTopCareers(questionnaireProvider),
+                  ),
+
+                  const SizedBox(height: 24),
+                ],
+
+                // Sección "Recursos útiles"
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'Recursos Útiles',
+                    style: AppTextStyles.h3,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                _buildResourceCard(
+                  'Universidades recomendadas',
+                  'Explora opciones en tu estado',
+                  Icons.apartment,
+                  () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const UniversitiesPage(),
+                      ),
+                    );
+                  },
+                ),
+                _buildResourceCard(
+                  'Guía de preparación',
+                  'Tips para elegir tu carrera perfecta',
+                  Icons.lightbulb_outline,
+                  () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const PreparationGuidePage(),
+                      ),
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 80),
+              ],
+            ),
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: AppColors.primary600,
+            unselectedItemColor: AppColors.gray400,
+            currentIndex: 0,
+            onTap: (index) {
+              switch (index) {
+                case 0:
+                  break;
+                case 1:
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const ExploreCareersPage(),
+                    ),
+                  );
+                  break;
+                case 2:
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const ProfilePage(),
+                    ),
+                  );
+                  break;
+                case 3:
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const SettingsPage(),
+                    ),
+                  );
+                  break;
+              }
+            },
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined),
+                label: 'Inicio',
               ),
-            ),
-            const SizedBox(height: 16),
-
-            _buildResourceCard(
-              'Universidades recomendadas',
-              'Explora opciones en tu estado',
-              Icons.apartment,
-                  () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const UniversitiesPage(),
-                  ),
-                );
-              },
-            ),
-            _buildResourceCard(
-              'Guía de preparación',
-              'Tips para elegir tu carrera perfecta',
-              Icons.lightbulb_outline,
-                  () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const PreparationGuidePage(),
-                  ),
-                );
-              },
-            ),
-
-            const SizedBox(height: 80),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primary600,
-        unselectedItemColor: AppColors.gray400,
-        currentIndex: 0,
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              break;
-            case 1:
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const ExploreCareersPage(),
-                ),
-              );
-              break;
-            case 2:
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const ProfilePage(),
-                ),
-              );
-              break;
-            case 3:
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const SettingsPage(),
-                ),
-              );
-              break;
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: 'Inicio',
+              BottomNavigationBarItem(
+                icon: Icon(Icons.explore_outlined),
+                label: 'Explorar',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person_outline),
+                label: 'Perfil',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.settings_outlined),
+                label: 'Ajustes',
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.explore_outlined),
-            label: 'Explorar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: 'Perfil',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings_outlined),
-            label: 'Ajustes',
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -347,8 +406,25 @@ class _HomePageState extends State<HomePage> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  // TODO: Iniciar evaluación
+                onPressed: () async {
+                  final provider = context.read<QuestionnaireProvider>();
+                  
+                  // Verificar si hay sesión en progreso
+                  final restored = await provider.restoreInProgressSession();
+                  
+                  if (!restored) {
+                    // Iniciar nueva sesión
+                    await provider.startNewSession();
+                  }
+                  
+                  if (mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const QuestionnairePage(),
+                      ),
+                    );
+                  }
                 },
                 icon: const Icon(Icons.play_arrow),
                 label: const Text('Comenzar Evaluación'),
@@ -360,7 +436,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildCompletedEvaluationCard() {
+  Widget _buildCompletedEvaluationCard(QuestionnaireProvider provider) {
+    final carrerasCount = provider.results?.recomendaciones.length ?? 5;
+
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -401,9 +479,9 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Tienes 5 carreras altamente compatibles',
-              style: TextStyle(
+            Text(
+              'Tienes $carrerasCount carreras altamente compatibles',
+              style: const TextStyle(
                 fontSize: 14,
                 color: AppColors.white,
               ),
@@ -412,8 +490,22 @@ class _HomePageState extends State<HomePage> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  // TODO: Ver resultados completos
+                onPressed: () async {
+                  if (provider.results == null &&
+                      provider.currentSession != null) {
+                    await provider.loadResults(
+                      provider.currentSession!.sessionId,
+                    );
+                  }
+
+                  if (provider.results != null && mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const QuestionnaireResultsPage(),
+                      ),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.white,
@@ -428,8 +520,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // NUEVO: Gráfica de compatibilidad
-  Widget _buildCompatibilityChart() {
+  Widget _buildCompatibilityChart(QuestionnaireProvider provider) {
+    // Obtener áreas del metadata o usar valores por defecto
+    final metadata = provider.results?.metadata ?? {};
+    final areaDetectada = metadata['area_detectada'] ?? 'Tecnología';
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -472,7 +567,7 @@ class _HomePageState extends State<HomePage> {
           ),
           const SizedBox(height: 20),
 
-          // Áreas de interés
+          // Áreas de interés basadas en resultados
           _buildSkillBar('Tecnología', 0.92, AppColors.primary600),
           _buildSkillBar('Ciencias', 0.78, AppColors.secondary600),
           _buildSkillBar('Negocios', 0.65, AppColors.accent600),
@@ -497,7 +592,7 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Tu perfil muestra alta compatibilidad con carreras tecnológicas',
+                    'Tu perfil muestra alta compatibilidad con carreras de $areaDetectada',
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppColors.success700,
                     ),
@@ -550,27 +645,27 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // NUEVO: Top 3 carreras
-  Widget _buildTopCareers() {
-    final careers = [
-      {
-        'name': 'Ingeniería en Software',
-        'compatibility': 92,
-        'icon': Icons.computer,
-        'color': AppColors.primary600,
-      },
-      {
-        'name': 'Ciencia de Datos',
-        'compatibility': 88,
-        'icon': Icons.analytics,
-        'color': AppColors.secondary600,
-      },
-      {
-        'name': 'Ingeniería en Sistemas',
-        'compatibility': 85,
-        'icon': Icons.developer_board,
-        'color': AppColors.accent600,
-      },
+  Widget _buildTopCareers(QuestionnaireProvider provider) {
+    // Usar datos reales del provider
+    final recomendaciones = provider.results?.recomendaciones ?? [];
+
+    if (recomendaciones.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    // Tomar solo top 3
+    final top3 = recomendaciones.take(3).toList();
+
+    final icons = [
+      Icons.computer,
+      Icons.analytics,
+      Icons.developer_board,
+    ];
+
+    final colors = [
+      AppColors.primary600,
+      AppColors.secondary600,
+      AppColors.accent600,
     ];
 
     return Container(
@@ -608,15 +703,16 @@ class _HomePageState extends State<HomePage> {
           ),
           const SizedBox(height: 16),
 
-          ...careers.asMap().entries.map((entry) {
+          ...top3.asMap().entries.map((entry) {
             final index = entry.key;
-            final career = entry.value;
+            final carrera = entry.value;
+
             return _buildCareerRankItem(
-              index + 1,
-              career['name'] as String,
-              career['compatibility'] as int,
-              career['icon'] as IconData,
-              career['color'] as Color,
+              carrera.ranking,
+              carrera.carrera,
+              (carrera.matchScore * 100).toInt(),
+              icons[index % icons.length],
+              colors[index % colors.length],
             );
           }).toList(),
         ],
@@ -625,12 +721,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildCareerRankItem(
-      int rank,
-      String name,
-      int compatibility,
-      IconData icon,
-      Color color,
-      ) {
+    int rank,
+    String name,
+    int compatibility,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -693,11 +789,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildResourceCard(
-      String title,
-      String subtitle,
-      IconData icon,
-      VoidCallback onTap,
-      ) {
+    String title,
+    String subtitle,
+    IconData icon,
+    VoidCallback onTap,
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(

@@ -23,8 +23,6 @@ import '../presentation/providers/auth_provider.dart';
 
 final sl = GetIt.instance;
 
-/// Inicializa todas las dependencias del proyecto
-/// Este método debe llamarse antes de runApp() en main.dart
 Future<void> initializeDependencies() async {
   // ============================================
   // External Dependencies (Third-party packages)
@@ -37,7 +35,7 @@ Future<void> initializeDependencies() async {
   // Dio (HTTP client)
   sl.registerLazySingleton(() {
     final dio = Dio(BaseOptions(
-      baseUrl: 'https://api.orientaplus.com', // Cambiar por tu API real
+      baseUrl: 'https://localhost:3000', // Cambiar por tu API real
       connectTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(seconds: 30),
       headers: {
@@ -45,7 +43,7 @@ Future<void> initializeDependencies() async {
         'Accept': 'application/json',
       },
     ));
-
+/*
     // Interceptores para logging y manejo de tokens
     dio.interceptors.add(LogInterceptor(
       request: true,
@@ -53,9 +51,10 @@ Future<void> initializeDependencies() async {
       responseBody: true,
       error: true,
     ));
-
+*/
     return dio;
   });
+
 
   // Connectivity
   sl.registerLazySingleton(() => Connectivity());

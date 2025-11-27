@@ -48,8 +48,15 @@ class _LoginPageState extends State<LoginPage> {
 
             // Navegar a home si está autenticado
             if (authProvider.isAuthenticated) {
+              final user = authProvider.user;
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.of(context).pushReplacementNamed('/home');
+                if (user != null && user.isTutor && !user.isRegistrationComplete) {
+                  // Si es tutor sin registro completo, ir a registro de estudiante
+                  Navigator.of(context).pushReplacementNamed('/student-register');
+                } else {
+                  // Si registro está completo, ir al home
+                  Navigator.of(context).pushReplacementNamed('/home');
+                }
               });
             }
 
@@ -232,14 +239,34 @@ class _LoginPageState extends State<LoginPage> {
                         ],
                       ),
 
+                      // Después del botón de login, busca donde dice "¿No tienes cuenta?" o similar
+// y reemplaza con esto:
+
                       const SizedBox(height: 24),
 
-                      // Register
-                      OutlinedButton(
-                        onPressed: () {
-                          Navigator.of(context).pushNamed('/register');
-                        },
-                        child: const Text('Crear una cuenta'),
+// Solo botón de registro de tutor
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            '¿No tienes cuenta? ',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.gray600,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pushNamed('/tutor-register');
+                            },
+                            child: Text(
+                              'Regístrate aquí',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.primary600,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
 
                       const SizedBox(height: 16),

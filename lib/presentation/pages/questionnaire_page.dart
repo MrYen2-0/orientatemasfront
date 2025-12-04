@@ -62,6 +62,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
         _selectedAnswer = null;
       });
 
+      // ✅ CORRECCIÓN: Usar provider.isCompleted en lugar de provider.currentSession?.isCompleted
       if (provider.isCompleted && mounted) {
         Navigator.pushReplacement(
           context,

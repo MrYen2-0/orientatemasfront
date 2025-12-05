@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:math';
 import '../providers/questionnaire_provider.dart';
 import 'questionnaire_results_page.dart';
 import 'dart:convert';
@@ -39,6 +40,46 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     super.dispose();
   }
 
+  // Función que genera orden consistente basado en ID de pregunta
+  List<String> _getShuffledOptions(List<String> opciones, String preguntaId) {
+    final List<String> opcionesCopia = List.from(opciones);
+    
+    // Usar el hash del ID como semilla para generar siempre el mismo orden
+    final seed = preguntaId.hashCode;
+    final random = Random(seed);
+    
+    // Algoritmo Fisher-Yates con semilla fija
+    for (int i = opcionesCopia.length - 1; i > 0; i--) {
+      final j = random.nextInt(i + 1);
+      final temp = opcionesCopia[i];
+      opcionesCopia[i] = opcionesCopia[j];
+      opcionesCopia[j] = temp;
+    }
+    
+    return opcionesCopia;
+  }
+
+  // Función para convertir texto seleccionado de vuelta a letra para el backend
+  String _convertTextToLetter(String selectedText) {
+    final question = context.read<QuestionnaireProvider>().currentQuestion?['pregunta'];
+    final opcionesRaw = question?['opciones'];
+    
+    if (opcionesRaw is List) {
+      final opciones = opcionesRaw.map((e) => e.toString()).toList();
+      for (int i = 0; i < opciones.length; i++) {
+        String textoLimpio = opciones[i];
+        if (opciones[i].contains(') ')) {
+          textoLimpio = opciones[i].split(') ').last;
+        }
+        if (textoLimpio == selectedText) {
+          return String.fromCharCode(65 + i); // Devolver A, B, C, D...
+        }
+      }
+    }
+    
+    return 'A'; // Fallback
+  }
+
   Future<void> _submitAnswer() async {
     if (_selectedAnswer == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -55,14 +96,16 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
 
     if (preguntaId == null) return;
 
-    final success = await provider.submitAnswer(preguntaId, _selectedAnswer!);
+    // Convertir el texto de vuelta a letra para el backend
+    String respuestaParaBackend = _convertTextToLetter(_selectedAnswer!);
+    
+    final success = await provider.submitAnswer(preguntaId, respuestaParaBackend);
 
     if (success) {
       setState(() {
         _selectedAnswer = null;
       });
 
-      // ✅ CORRECCIÓN: Usar provider.isCompleted en lugar de provider.currentSession?.isCompleted
       if (provider.isCompleted && mounted) {
         Navigator.pushReplacement(
           context,
@@ -84,16 +127,26 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF9FAFB), // gray50
       appBar: AppBar(
-        title: const Text('Test Vocacional'),
+        backgroundColor: const Color(0xFFFFFFFF), // white
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF111827)), // gray900
+          onPressed: () => _confirmExit(context),
+        ),
+        title: const Text(
+          'Test Vocacional',
+          style: TextStyle(
+            color: Color(0xFF111827), // gray900
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.history),
-            onPressed: () => _showSessionHistory(context),
-            tooltip: 'Ver historial',
-          ),
-          IconButton(
-            icon: const Icon(Icons.close),
+            icon: const Icon(Icons.close, color: Color(0xFF111827)), // gray900
             onPressed: () => _confirmExit(context),
             tooltip: 'Salir',
           ),
@@ -153,7 +206,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 24),
-            FilledButton.icon(
+            ElevatedButton.icon(
               onPressed: () => _initQuestionnaire(),
               icon: const Icon(Icons.refresh),
               label: const Text('Reintentar'),
@@ -194,25 +247,83 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
 
   Widget _buildQuestionView(QuestionnaireProvider provider) {
     final question = provider.currentQuestion!['pregunta'];
-    final progreso = provider.currentQuestion!['progreso'];
-    final theme = Theme.of(context);
+    final progreso = provider.currentQuestion!['progreso'] ?? {};
+    
+    // Extraer información del progreso
+    final preguntaActual = provider.preguntasRespondidas + 1; // Pregunta actual
+    final totalRespuestas = provider.preguntasRespondidas;
+    final porcentajeEstimado = (progreso['porcentaje_estimado'] ?? 0.0).toDouble();
+    final faseActual = progreso['fase_actual'] ?? 'fase1';
+
+    print('🎯 Debug progreso:');
+    print('   - Pregunta actual: $preguntaActual');
+    print('   - Total respuestas: $totalRespuestas');
+    print('   - Porcentaje: $porcentajeEstimado');
+    print('   - Fase: $faseActual');
 
     return Column(
       children: [
-        _buildProgressBar(progreso, theme),
+        // Barra de progreso superior
+        Container(
+          color: const Color(0xFFFFFFFF), // white
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              // Barra de progreso
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: porcentajeEstimado / 100.0,
+                  minHeight: 8,
+                  backgroundColor: const Color(0xFFE5E7EB), // gray200
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    Color(0xFF2563EB), // primary600
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              
+              // Información del progreso centrada
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Pregunta $preguntaActual · ${porcentajeEstimado.toStringAsFixed(1)}% completado',
+                    style: const TextStyle(
+                      color: Color(0xFF1E40AF), // primary700
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+              
+              // Estimación de preguntas restantes
+              const SizedBox(height: 8),
+              Text(
+                'Estimado: 100-120 preguntas total',
+                style: const TextStyle(
+                  color: Color(0xFF6B7280), // gray500
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Contenido principal
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildProgressInfo(progreso, theme),
+                const SizedBox(height: 8),
+                _buildQuestionCard(question),
                 const SizedBox(height: 24),
-                _buildQuestionCard(question, theme),
+                _buildAnswerOptions(question),
                 const SizedBox(height: 24),
-                _buildAnswerOptions(question, theme),
-                const SizedBox(height: 24),
-                _buildSubmitButton(theme),
+                _buildSubmitButton(),
                 const SizedBox(height: 16),
               ],
             ),
@@ -222,125 +333,79 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     );
   }
 
-  Widget _buildProgressBar(Map<String, dynamic> progreso, ThemeData theme) {
-    final porcentaje = (progreso['porcentaje'] ?? 0.0) / 100.0;
-
-    return Column(
-      children: [
-        LinearProgressIndicator(
-          value: porcentaje,
-          minHeight: 8,
-          backgroundColor: theme.colorScheme.surfaceVariant,
-          valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
-        ),
-      ],
-    );
+  String _getFaseTexto(String fase) {
+    switch (fase) {
+      case 'fase1':
+        return 'Exploración general';
+      case 'fase2':
+        return 'Profundizando';
+      default:
+        return 'En progreso';
+    }
   }
 
-  Widget _buildProgressInfo(Map<String, dynamic> progreso, ThemeData theme) {
-    final fase = progreso['fase'] ?? 'universal';
-    final faseTextos = {
-      'universal': 'Preguntas generales',
-      'profundizacion': 'Explorando tu perfil',
-      'refinamiento': 'Refinando resultados',
-    };
-
-    final faseIconos = {
-      'universal': Icons.explore,
-      'profundizacion': Icons.psychology,
-      'refinamiento': Icons.tune,
-    };
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Icon(
-              faseIconos[fase] ?? Icons.help_outline,
-              color: theme.colorScheme.primary,
-              size: 32,
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Fase: ${faseTextos[fase]}',
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      color: theme.colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  if (progreso['puede_finalizar'] == true)
-                    Text(
-                      'Ya puedes finalizar o continuar para mayor precisión',
-                      style: theme.textTheme.bodySmall,
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
+  Widget _buildQuestionCard(Map<String, dynamic> question) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFFFF), // white
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE5E7EB)), // gray200
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF000000).withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-    );
-  }
-
-  Widget _buildQuestionCard(Map<String, dynamic> question, ThemeData theme) {
-    return Card(
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    question['id'] ?? '',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onPrimaryContainer,
-                      fontWeight: FontWeight.bold,
-                    ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDBEAFE), // primary100
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  question['id'] ?? '',
+                  style: const TextStyle(
+                    color: Color(0xFF1E40AF), // primary700
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              question['texto'] ?? '',
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                height: 1.4,
               ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            question['texto'] ?? '',
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              height: 1.4,
+              color: Color(0xFF111827), // gray900
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildAnswerOptions(Map<String, dynamic> question, ThemeData theme) {
-    // Las opciones vienen como una lista (array) desde la API
+  Widget _buildAnswerOptions(Map<String, dynamic> question) {
     final opcionesRaw = question['opciones'];
     List<String> opciones = [];
 
     if (opcionesRaw is List) {
-      // Convertir la lista a List<String>
       opciones = opcionesRaw.map((e) => e.toString()).toList();
     } else if (opcionesRaw is String) {
-      // Si viene como string, intentar parsearlo
       try {
         final parsed = json.decode(opcionesRaw);
         if (parsed is List) {
@@ -351,31 +416,29 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
       }
     }
 
+    // Orden fijo basado en el ID de la pregunta
+    final preguntaId = question['id'] ?? '';
+    opciones = _getShuffledOptions(opciones, preguntaId);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: opciones.asMap().entries.map((entry) {
         final index = entry.key;
         final opcionTexto = entry.value;
         
-        // Generar letra (A, B, C, D, E)
-        final letra = String.fromCharCode(65 + index);
-        
-        // Limpiar el texto de la opción (remover "A) " si existe)
         String textoLimpio = opcionTexto;
         if (opcionTexto.contains(') ')) {
           textoLimpio = opcionTexto.split(') ').last;
-        } else if (opcionTexto.startsWith(letra)) {
-          textoLimpio = opcionTexto.substring(letra.length).trim();
         }
         
-        final isSelected = _selectedAnswer == letra;
+        final isSelected = _selectedAnswer == textoLimpio;
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: InkWell(
             onTap: () {
               setState(() {
-                _selectedAnswer = letra;
+                _selectedAnswer = textoLimpio;
               });
             },
             borderRadius: BorderRadius.circular(16),
@@ -383,12 +446,12 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? theme.colorScheme.primaryContainer
-                    : theme.colorScheme.surface,
+                    ? const Color(0xFFDBEAFE) // primary100
+                    : const Color(0xFFFFFFFF), // white
                 border: Border.all(
                   color: isSelected
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.outline,
+                      ? const Color(0xFF2563EB) // primary600
+                      : const Color(0xFFD1D5DB), // gray300
                   width: isSelected ? 2 : 1,
                 ),
                 borderRadius: BorderRadius.circular(16),
@@ -396,42 +459,43 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
               child: Row(
                 children: [
                   Container(
-                    width: 32,
-                    height: 32,
+                    width: 20,
+                    height: 20,
                     decoration: BoxDecoration(
-                      color: isSelected
-                          ? theme.colorScheme.primary
-                          : theme.colorScheme.surfaceVariant,
                       shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        letra,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          color: isSelected
-                              ? theme.colorScheme.onPrimary
-                              : theme.colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      border: Border.all(
+                        color: isSelected
+                            ? const Color(0xFF2563EB) // primary600
+                            : const Color(0xFF9CA3AF), // gray400
+                        width: 2,
                       ),
+                      color: isSelected
+                          ? const Color(0xFF2563EB) // primary600
+                          : Colors.transparent,
                     ),
+                    child: isSelected
+                        ? const Icon(
+                            Icons.check,
+                            color: Color(0xFFFFFFFF), // white
+                            size: 14,
+                          )
+                        : null,
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Text(
                       textoLimpio,
-                      style: theme.textTheme.bodyLarge?.copyWith(
+                      style: TextStyle(
                         color: isSelected
-                            ? theme.colorScheme.onPrimaryContainer
-                            : theme.colorScheme.onSurface,
+                            ? const Color(0xFF1E40AF) // primary700
+                            : const Color(0xFF111827), // gray900
                         fontWeight: isSelected
                             ? FontWeight.w600
                             : FontWeight.normal,
+                        fontSize: 16,
                       ),
                     ),
                   ),
-                  if (isSelected)
-                    Icon(Icons.check_circle, color: theme.colorScheme.primary),
                 ],
               ),
             ),
@@ -441,21 +505,27 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     );
   }
 
-  Widget _buildSubmitButton(ThemeData theme) {
-    return FilledButton.icon(
-      onPressed: _selectedAnswer != null ? _submitAnswer : null,
-      icon: const Icon(Icons.arrow_forward),
-      label: const Text('Siguiente'),
-      style: FilledButton.styleFrom(
-        padding: const EdgeInsets.all(16),
-        textStyle: const TextStyle(fontSize: 16),
+  Widget _buildSubmitButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton.icon(
+        onPressed: _selectedAnswer != null ? _submitAnswer : null,
+        icon: const Icon(Icons.arrow_forward),
+        label: const Text('Siguiente'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF2563EB), // primary600
+          foregroundColor: const Color(0xFFFFFFFF), // white
+          disabledBackgroundColor: const Color(0xFFD1D5DB), // gray300
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          textStyle: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
-    );
-  }
-
-  void _showSessionHistory(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Función próximamente')),
     );
   }
 
@@ -472,7 +542,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancelar'),
           ),
-          FilledButton(
+          ElevatedButton(
             onPressed: () {
               context.read<QuestionnaireProvider>().saveCurrentSession();
               Navigator.pop(context);

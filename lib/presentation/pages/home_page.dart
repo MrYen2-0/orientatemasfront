@@ -24,22 +24,87 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    // Diferir la carga hasta después del primer frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkForExistingSession();
     });
   }
 
   Future<void> _checkForExistingSession() async {
-    if (!mounted) return; // Verificar que el widget sigue montado
+    if (!mounted) return;
 
-    final provider = context.read<QuestionnaireProvider>();
+    try {
+      final provider = context.read<QuestionnaireProvider>();
+      final completedSessions = await provider.getCompletedSessions();
+      if (completedSessions.isNotEmpty && mounted) {
+        final lastSession = completedSessions.first;
+        await provider.loadResults(lastSession.sessionId);
+      }
+    } catch (e) {
+      print('Error checking existing session: $e');
+    }
+  }
 
-    // Intentar restaurar sesión completada más reciente
-    final completedSessions = await provider.getCompletedSessions();
-    if (completedSessions.isNotEmpty && mounted) {
-      final lastSession = completedSessions.first;
-      await provider.loadResults(lastSession.sessionId);
+  Future<void> _startEvaluation() async {
+    print('🚀 Botón "Comenzar Evaluación" presionado');
+    
+    try {
+      final provider = context.read<QuestionnaireProvider>();
+      print('📋 Provider obtenido: ${provider.runtimeType}');
+      
+      // Mostrar loading
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      print('🔍 Verificando sesión en progreso...');
+      final restored = await provider.restoreInProgressSession();
+      print('📊 Sesión restaurada: $restored');
+
+      if (!restored) {
+        print('🆕 Iniciando nueva sesión...');
+        final started = await provider.startNewSession();
+        print('✅ Nueva sesión iniciada: $started');
+        
+        if (!started) {
+          Navigator.pop(context); // Cerrar loading
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error al iniciar evaluación: ${provider.errorMessage}'),
+              backgroundColor: AppColors.error600,
+            ),
+          );
+          return;
+        }
+      }
+
+      Navigator.pop(context); // Cerrar loading
+
+      if (mounted) {
+        print('🎯 Navegando a QuestionnaireePage...');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const QuestionnairePage(),
+          ),
+        );
+        print('✅ Navegación ejecutada');
+      }
+    } catch (e) {
+      Navigator.pop(context); // Cerrar loading si está abierto
+      print('❌ Error en _startEvaluation: $e');
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: AppColors.error600,
+          ),
+        );
+      }
     }
   }
 
@@ -49,7 +114,7 @@ class _HomePageState extends State<HomePage> {
     final questionnaireProvider = context.watch<QuestionnaireProvider>();
     final user = authProvider.user;
     final hasCompletedEvaluation = questionnaireProvider.isCompleted;
-    // Si es tutor pero no ha completado el registro del menor, redirigir
+
     if (user != null && user.isTutor && !user.isRegistrationComplete) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context).pushReplacementNamed('/student-register');
@@ -129,7 +194,6 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Sección de bienvenida
             Container(
               width: double.infinity,
               decoration: const BoxDecoration(
@@ -158,7 +222,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            // Card principal
             Padding(
               padding: const EdgeInsets.all(16),
               child: hasCompletedEvaluation
@@ -166,7 +229,6 @@ class _HomePageState extends State<HomePage> {
                   : _buildStartEvaluationCard(),
             ),
 
-            // Sección "Tus Resultados"
             if (hasCompletedEvaluation &&
                 questionnaireProvider.results != null) ...[
               Padding(
@@ -202,7 +264,6 @@ class _HomePageState extends State<HomePage> {
               ),
               const SizedBox(height: 16),
 
-              // Gráfica de compatibilidad
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: _buildCompatibilityChart(questionnaireProvider),
@@ -210,7 +271,6 @@ class _HomePageState extends State<HomePage> {
 
               const SizedBox(height: 16),
 
-              // Top 3 carreras recomendadas
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: _buildTopCareers(questionnaireProvider),
@@ -219,7 +279,6 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 24),
             ],
 
-            // Sección "Recursos útiles"
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text('Recursos Útiles', style: AppTextStyles.h3),
@@ -354,29 +413,11 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
             const SizedBox(height: 16),
+            
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () async {
-                  final provider = context.read<QuestionnaireProvider>();
-
-                  // Verificar si hay sesión en progreso
-                  final restored = await provider.restoreInProgressSession();
-
-                  if (!restored) {
-                    // Iniciar nueva sesión
-                    await provider.startNewSession();
-                  }
-
-                  if (mounted) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const QuestionnairePage(),
-                      ),
-                    );
-                  }
-                },
+                onPressed: _startEvaluation, // Usar función separada
                 icon: const Icon(Icons.play_arrow),
                 label: const Text('Comenzar Evaluación'),
               ),
@@ -388,7 +429,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildCompletedEvaluationCard(QuestionnaireProvider provider) {
-    final carrerasCount = provider.results?.recomendaciones.length ?? 5;
+    final carrerasCount = provider.results?.recomendaciones.length ?? 3;
 
     return Container(
       decoration: BoxDecoration(
@@ -465,7 +506,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildCompatibilityChart(QuestionnaireProvider provider) {
-    // Obtener áreas del metadata o usar valores por defecto
     final metadata = provider.results?.metadata ?? {};
     final areaDetectada = metadata['area_detectada'] ?? 'Tecnología';
 
@@ -511,12 +551,9 @@ class _HomePageState extends State<HomePage> {
           ),
           const SizedBox(height: 20),
 
-          // Áreas de interés basadas en resultados
           _buildSkillBar('Tecnología', 0.92, AppColors.primary600),
           _buildSkillBar('Ciencias', 0.78, AppColors.secondary600),
           _buildSkillBar('Negocios', 0.65, AppColors.accent600),
-          _buildSkillBar('Humanidades', 0.45, AppColors.warning600),
-          _buildSkillBar('Artes', 0.38, AppColors.error600),
 
           const SizedBox(height: 16),
 
@@ -590,18 +627,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildTopCareers(QuestionnaireProvider provider) {
-    // Usar datos reales del provider
     final recomendaciones = provider.results?.recomendaciones ?? [];
 
     if (recomendaciones.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    // Tomar solo top 3
     final top3 = recomendaciones.take(3).toList();
-
     final icons = [Icons.computer, Icons.analytics, Icons.developer_board];
-
     final colors = [
       AppColors.primary600,
       AppColors.secondary600,

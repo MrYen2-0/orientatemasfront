@@ -57,12 +57,12 @@ class TermsConditionsPage extends StatelessWidget {
 
             // Introducción
             Text(
-              'Bienvenido a Orienta+',
+              'Bienvenido a Orientate+',
               style: AppTextStyles.h3,
             ),
             const SizedBox(height: 12),
             Text(
-              'Al acceder y utilizar el Sistema Profesional de Orientación Vocacional Orienta+, usted acepta estar sujeto a los siguientes términos y condiciones de uso.',
+              'Al acceder y utilizar el Sistema Profesional de Orientación Vocacional Orientate+, usted acepta estar sujeto a los siguientes términos y condiciones de uso.',
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.gray700,
               ),
@@ -75,13 +75,13 @@ class TermsConditionsPage extends StatelessWidget {
             // Sección 1
             _buildSection(
               '1. Aceptación de los Términos',
-              'Al registrarse y utilizar Orienta+, usted acepta cumplir con estos términos y condiciones, así como con nuestra política de privacidad. Si no está de acuerdo con alguno de estos términos, no debe utilizar nuestro servicio.',
+              'Al registrarse y utilizar Orientate+, usted acepta cumplir con estos términos y condiciones, así como con nuestra política de privacidad. Si no está de acuerdo con alguno de estos términos, no debe utilizar nuestro servicio.',
             ),
 
             // Sección 2
             _buildSection(
               '2. Uso del Servicio',
-              'Orienta+ es un sistema de orientación vocacional diseñado para ayudar a estudiantes de preparatoria a identificar carreras profesionales acordes a sus aptitudes e intereses.\n\nUsted se compromete a:\n• Proporcionar información verídica y actualizada\n• Utilizar el servicio de manera responsable\n• No compartir su cuenta con terceros\n• No manipular o alterar los resultados de las evaluaciones',
+              'Orientate+ es un sistema de orientación vocacional diseñado para ayudar a estudiantes de preparatoria a identificar carreras profesionales acordes a sus aptitudes e intereses.\n\nUsted se compromete a:\n• Proporcionar información verídica y actualizada\n• Utilizar el servicio de manera responsable\n• No compartir su cuenta con terceros\n• No manipular o alterar los resultados de las evaluaciones',
             ),
 
             // Sección 3
@@ -99,7 +99,7 @@ class TermsConditionsPage extends StatelessWidget {
             // Sección 5
             _buildSection(
               '5. Propiedad Intelectual',
-              'Todo el contenido de Orienta+, incluyendo textos, gráficos, logos, algoritmos y software, es propiedad exclusiva de Orienta+ y está protegido por las leyes de propiedad intelectual.\n\nQueda prohibido:\n• Copiar o reproducir el contenido sin autorización\n• Realizar ingeniería inversa del software\n• Utilizar el sistema con fines comerciales sin licencia',
+              'Todo el contenido de Orientate+, incluyendo textos, gráficos, logos, algoritmos y software, es propiedad exclusiva de Orientate+ y está protegido por las leyes de propiedad intelectual.\n\nQueda prohibido:\n• Copiar o reproducir el contenido sin autorización\n• Realizar ingeniería inversa del software\n• Utilizar el sistema con fines comerciales sin licencia',
             ),
 
             // Sección 6

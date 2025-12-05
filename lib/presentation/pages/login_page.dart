@@ -25,6 +25,49 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
+  Future<void> _performLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    print('🔐 LoginPage - Iniciando proceso de login');
+    setState(() => _errorShown = false);
+
+    final authProvider = context.read<AuthProvider>();
+    
+    try {
+      final success = await authProvider.login(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      print('🔐 LoginPage - Resultado: $success');
+      
+      if (success) {
+        print('✅ LoginPage - Login exitoso, navegando...');
+        if (mounted) {
+          final user = authProvider.user;
+          if (user != null && user.isTutor && !user.isRegistrationComplete) {
+            Navigator.of(context).pushReplacementNamed('/student-register');
+          } else {
+            Navigator.of(context).pushReplacementNamed('/home');
+          }
+        }
+      } else {
+        print('❌ LoginPage - Login falló');
+        // El error se maneja en el Consumer
+      }
+    } catch (e) {
+      print('❌ LoginPage - Excepción: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error inesperado: $e'),
+            backgroundColor: AppColors.error600,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,10 +94,8 @@ class _LoginPageState extends State<LoginPage> {
               final user = authProvider.user;
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (user != null && user.isTutor && !user.isRegistrationComplete) {
-                  // Si es tutor sin registro completo, ir a registro de estudiante
                   Navigator.of(context).pushReplacementNamed('/student-register');
                 } else {
-                  // Si registro está completo, ir al home
                   Navigator.of(context).pushReplacementNamed('/home');
                 }
               });
@@ -190,22 +231,7 @@ class _LoginPageState extends State<LoginPage> {
 
                       // Login button
                       ElevatedButton(
-                        onPressed: authProvider.isLoading
-                            ? null
-                            : () async {
-                          if (_formKey.currentState!.validate()) {
-                            setState(() => _errorShown = false);
-
-                            final success = await authProvider.login(
-                              email: _emailController.text.trim(),
-                              password: _passwordController.text,
-                            );
-
-                            if (!success && mounted) {
-                              // El error se muestra automáticamente por el Consumer
-                            }
-                          }
-                        },
+                        onPressed: authProvider.isLoading ? null : _performLogin,
                         child: authProvider.isLoading
                             ? const SizedBox(
                           height: 20,
@@ -239,12 +265,9 @@ class _LoginPageState extends State<LoginPage> {
                         ],
                       ),
 
-                      // Después del botón de login, busca donde dice "¿No tienes cuenta?" o similar
-// y reemplaza con esto:
-
                       const SizedBox(height: 24),
 
-// Solo botón de registro de tutor
+                      // Solo botón de registro de tutor
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -271,7 +294,7 @@ class _LoginPageState extends State<LoginPage> {
 
                       const SizedBox(height: 16),
 
-                      // ✅ SECCIÓN DEMO
+                      // SECCIÓN DEMO
                       Row(
                         children: [
                           const Expanded(child: Divider()),
@@ -290,7 +313,7 @@ class _LoginPageState extends State<LoginPage> {
 
                       const SizedBox(height: 16),
 
-                      // ✅ BOTÓN DEMO
+                      // BOTÓN DEMO
                       Container(
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
@@ -338,6 +361,20 @@ class _LoginPageState extends State<LoginPage> {
                             shadowColor: Colors.transparent,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      // BOTÓN DE REGISTRO ESTUDIANTE (TEMPORAL PARA TESTING)
+                      TextButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).pushNamed('/register');
+                        },
+                        icon: const Icon(Icons.person_add_outlined),
+                        label: const Text('Registro Estudiante (Testing)'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.secondary600,
                         ),
                       ),
 

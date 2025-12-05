@@ -17,13 +17,20 @@ import '../data/datasource/local/auth_local_datasource.dart';
 
 // Core
 import '../core/network/network_info.dart';
+import '../core/constants/api_constants.dart';
 
-// Presentation - PROVIDERS (no BLoCs)
+// Presentation - PROVIDERS
 import '../presentation/providers/auth_provider.dart';
+import '../presentation/providers/evaluation_provider.dart';
+import '../presentation/providers/career_provider.dart';
+import '../presentation/providers/profile_provider.dart';
+import '../presentation/providers/notification_provider.dart';
 
 final sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
+  print('🚀 Inicializando dependencias...');
+  
   // ============================================
   // External Dependencies (Third-party packages)
   // ============================================
@@ -32,29 +39,36 @@ Future<void> initializeDependencies() async {
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
 
-  // Dio (HTTP client)
+  // Dio (HTTP client) - CONFIGURADO PARA GATEWAY
   sl.registerLazySingleton(() {
     final dio = Dio(BaseOptions(
-      baseUrl: 'https://localhost:3000', // Cambiar por tu API real
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
+      baseUrl: ApiConstants.baseUrl,  // Gateway URL
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 15),
+      headers: ApiConstants.headers,
     ));
-/*
-    // Interceptores para logging y manejo de tokens
+
+    // Interceptores para logging
     dio.interceptors.add(LogInterceptor(
       request: true,
       requestBody: true,
       responseBody: true,
       error: true,
+      logPrint: (obj) => print('🌐 DIO: $obj'),
     ));
-*/
+
+    // Interceptor para manejo de errores
+    dio.interceptors.add(InterceptorsWrapper(
+      onError: (error, handler) {
+        print('❌ DIO ERROR: ${error.message}');
+        print('❌ DIO RESPONSE: ${error.response?.data}');
+        handler.next(error);
+      },
+    ));
+
+    print('✅ Dio configurado para Gateway: ${ApiConstants.baseUrl}');
     return dio;
   });
-
 
   // Connectivity
   sl.registerLazySingleton(() => Connectivity());
@@ -103,10 +117,9 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
 
   // ============================================
-  // PROVIDERS (reemplaza BLoCs)
+  // PROVIDERS
   // ============================================
 
-  // ChangeNotifier - usa Factory para crear nueva instancia cada vez
   sl.registerFactory(
         () => AuthProvider(
       loginUseCase: sl(),
@@ -115,4 +128,11 @@ Future<void> initializeDependencies() async {
       getCurrentUserUseCase: sl(),
     ),
   );
+
+  sl.registerFactory(() => EvaluationProvider());
+  sl.registerFactory(() => CareerProvider());
+  sl.registerFactory(() => ProfileProvider());
+  sl.registerFactory(() => NotificationProvider());
+
+  print('✅ Todas las dependencias inicializadas correctamente');
 }

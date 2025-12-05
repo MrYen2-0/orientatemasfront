@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:integradorfront/presentation/providers/questionnaire_provider.dart';
 import 'package:provider/provider.dart';
 
 // Core
@@ -14,21 +13,24 @@ import 'presentation/providers/evaluation_provider.dart';
 import 'presentation/providers/career_provider.dart';
 import 'presentation/providers/profile_provider.dart';
 import 'presentation/providers/notification_provider.dart';
+import 'presentation/providers/questionnaire_provider.dart';
 
 // Presentation - Pages
-import 'presentation/widgets/auth_guard.dart'; // 👈 AGREGAR
+import 'presentation/widgets/auth_guard.dart';
 import 'presentation/pages/splash_page.dart';
 import 'presentation/pages/login_page.dart';
+import 'presentation/pages/register_page.dart';  // ← NUEVO
 import 'presentation/pages/home_page.dart';
-import 'presentation/pages/tutor_register_page.dart';//
-import 'presentation/pages/student_register_page.dart'; // 👈 AGREGAR IMPORT
-// AGREGAR IMPORT
+import 'presentation/pages/tutor_register_page.dart';
+import 'presentation/pages/student_register_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Inicializar dependencias (GetIt)
+  print('🚀 Inicializando dependencias...');
   await di.initializeDependencies();
+  print('✅ Dependencias inicializadas');
 
   // Configurar orientación (solo portrait)
   await SystemChrome.setPreferredOrientations([
@@ -54,7 +56,7 @@ class OrientaApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        // Auth Provider (REEMPLAZA AuthBloc)
+        // Auth Provider
         ChangeNotifierProvider(
           create: (_) => di.sl<AuthProvider>()..initialize(),
         ),
@@ -70,6 +72,8 @@ class OrientaApp extends StatelessWidget {
 
         // Notification Provider
         ChangeNotifierProvider(create: (_) => di.sl<NotificationProvider>()),
+
+        // Questionnaire Provider
         ChangeNotifierProvider(create: (_) => QuestionnaireProvider()),
       ],
       child: MaterialApp(
@@ -79,8 +83,9 @@ class OrientaApp extends StatelessWidget {
         home: const SplashPage(),
         routes: {
           '/login': (_) => const LoginPage(),
+          '/register': (_) => const RegisterPage(),  
           '/tutor-register': (context) => const TutorRegisterPage(),
-          '/student-register': (context) => const StudentRegisterPage(), // 👈 AGREGAR RUTA
+          '/student-register': (context) => const StudentRegisterPage(),
           '/home': (context) => AuthGuard(child: const HomePage()),
         },
       ),

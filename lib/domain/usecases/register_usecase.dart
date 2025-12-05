@@ -8,6 +8,7 @@ class RegisterUseCase {
 
   RegisterUseCase(this.repository);
 
+  /// Registro de estudiante adulto via Gateway
   Future<Either<Failure, User>> call({
     required String email,
     required String password,
@@ -15,7 +16,10 @@ class RegisterUseCase {
     String? semester,
     String? state,
   }) async {
-    return await repository.register(
+    print('🔧 RegisterUseCase.call iniciado');
+    
+    // Llamar al método registerAdult del repository
+    return await repository.registerAdult(
       email: email,
       password: password,
       name: name,

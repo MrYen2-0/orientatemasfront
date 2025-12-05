@@ -19,19 +19,21 @@ class UserModel extends User {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json['id'] as String,
-      email: json['email'] as String,
-      name: json['name'] as String,
-      semester: json['semester'] as String?,
-      state: json['state'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      hasCompletedEvaluation: json['hasCompletedEvaluation'] as bool? ?? false,
-      isTutor: json['isTutor'] as bool? ?? false,
-      phone: json['phone'] as String?,
-      relationship: json['relationship'] as String?,
-      minorName: json['minorName'] as String?,
-      minorEmail: json['minorEmail'] as String?,
-      minorBirthdate: json['minorBirthdate'] as String?,
+      id: json['id']?.toString() ?? '',
+      email: json['email']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      semester: json['semester']?.toString(),
+      state: json['state']?.toString(),
+      createdAt: json['createdAt'] != null 
+        ? DateTime.tryParse(json['createdAt']) ?? DateTime.now()
+        : DateTime.now(),
+      hasCompletedEvaluation: json['hasCompletedEvaluation'] == true,
+      isTutor: json['isTutor'] == true,
+      phone: json['phone']?.toString(),
+      relationship: json['relationship']?.toString(),
+      minorName: json['minorName']?.toString(),
+      minorEmail: json['minorEmail']?.toString(),
+      minorBirthdate: json['minorBirthdate']?.toString(),
     );
   }
 

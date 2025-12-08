@@ -6,23 +6,23 @@ import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
 
 // Data - Dependency Injection
-import 'data/di.dart' as di;
+import 'feature/Users/data/di.dart' as di;
 
-import 'presentation/providers/auth_provider.dart';
-import 'presentation/providers/evaluation_provider.dart';
-import 'presentation/providers/career_provider.dart';
-import 'presentation/providers/profile_provider.dart';
-import 'presentation/providers/notification_provider.dart';
-import 'presentation/providers/questionnaire_provider.dart';
+import 'feature/Users/presentation/providers/auth_provider.dart';
+import 'feature/Users/presentation/providers/evaluation_provider.dart';
+import 'feature/Users/presentation/providers/career_provider.dart';
+import 'feature/Users/presentation/providers/profile_provider.dart';
+import 'feature/Users/presentation/providers/notification_provider.dart';
+import 'feature/Users/presentation/providers/questionnaire_provider.dart';
 
 // Presentation - Pages
-import 'presentation/widgets/auth_guard.dart';
-import 'presentation/pages/splash_page.dart';
-import 'presentation/pages/login_page.dart';
-import 'presentation/pages/register_page.dart';  // ← NUEVO
-import 'presentation/pages/home_page.dart';
-import 'presentation/pages/tutor_register_page.dart';
-import 'presentation/pages/student_register_page.dart';
+import 'feature/Users/presentation/widgets/auth_guard.dart';
+import 'feature/Users/presentation/pages/splash_page.dart';
+import 'feature/Users/presentation/pages/login_page.dart';
+import 'feature/Users/presentation/pages/register_page.dart';  // ← NUEVO
+import 'feature/Users/presentation/pages/home_page.dart';
+import 'feature/Users/presentation/pages/tutor_register_page.dart';
+import 'feature/Users/presentation/pages/student_register_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

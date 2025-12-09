@@ -16,21 +16,28 @@ abstract class AuthRepository {
     String? state,
   });
 
-  /// 🆕 NUEVO: Registro de estudiante adulto
   Future<Either<Failure, User>> registerAdult({
     required String email,
     required String password,
     required String name,
-    String? semester,
-    String? state,
+    required String semester,
+    required String state,
   });
 
-  /// 🆕 NUEVO: Registro de tutor
-  Future<Either<Failure, User>> registerTutor({
+  Future<Either<Failure, Map<String, dynamic>>> registerTutor({
     required String email,
     required String password,
     required String name,
     required String phone,
+  });
+
+  Future<Either<Failure, User>> registerMinor({
+    required String tutorId,
+    required String name,
+    String? email,
+    required String birthdate,
+    required String semester,
+    required String state,
     required String relationship,
   });
 

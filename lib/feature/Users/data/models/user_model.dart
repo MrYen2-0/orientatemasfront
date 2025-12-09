@@ -12,9 +12,8 @@ class UserModel extends User {
     super.isTutor,
     super.phone,
     super.relationship,
-    super.minorName,
-    super.minorEmail,
-    super.minorBirthdate,
+    super.tutorId,
+    super.birthdate,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -31,9 +30,8 @@ class UserModel extends User {
       isTutor: json['isTutor'] == true,
       phone: json['phone']?.toString(),
       relationship: json['relationship']?.toString(),
-      minorName: json['minorName']?.toString(),
-      minorEmail: json['minorEmail']?.toString(),
-      minorBirthdate: json['minorBirthdate']?.toString(),
+      tutorId: json['tutorId']?.toString(),
+      birthdate: json['birthdate']?.toString(),
     );
   }
 
@@ -49,9 +47,8 @@ class UserModel extends User {
       'isTutor': isTutor,
       'phone': phone,
       'relationship': relationship,
-      'minorName': minorName,
-      'minorEmail': minorEmail,
-      'minorBirthdate': minorBirthdate,
+      'tutorId': tutorId,
+      'birthdate': birthdate,
     };
   }
 
@@ -67,9 +64,8 @@ class UserModel extends User {
       isTutor: user.isTutor,
       phone: user.phone,
       relationship: user.relationship,
-      minorName: user.minorName,
-      minorEmail: user.minorEmail,
-      minorBirthdate: user.minorBirthdate,
+      tutorId: user.tutorId,
+      birthdate: user.birthdate,
     );
   }
 }

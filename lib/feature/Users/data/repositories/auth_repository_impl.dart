@@ -25,20 +25,16 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     if (await networkInfo.isConnected) {
       try {
-        print('🔗 AuthRepository.login - llamando remoteDataSource');
         final user = await remoteDataSource.login(
           email: email,
           password: password,
         );
         
-        print('✅ AuthRepository.login - guardando en cache');
         await localDataSource.cacheUser(user);
         return Right(user);
       } on ServerException catch (e) {
-        print('❌ AuthRepository.login - ServerException: ${e.message}');
         return Left(ServerFailure(e.message ?? 'Error del servidor'));
       } catch (e) {
-        print('❌ AuthRepository.login - Exception: $e');
         return Left(ServerFailure('Error inesperado: ${e.toString()}'));
       }
     } else {
@@ -54,13 +50,12 @@ class AuthRepositoryImpl implements AuthRepository {
     String? semester,
     String? state,
   }) async {
-    // Redirect to registerAdult
     return await registerAdult(
       email: email,
       password: password,
       name: name,
-      semester: semester,
-      state: state,
+      semester: semester ?? '',
+      state: state ?? '',
     );
   }
 
@@ -69,12 +64,11 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String password,
     required String name,
-    String? semester,
-    String? state,
+    required String semester,
+    required String state,
   }) async {
     if (await networkInfo.isConnected) {
       try {
-        print('🔗 AuthRepository.registerAdult - llamando remoteDataSource');
         final user = await remoteDataSource.registerAdult(
           email: email,
           password: password,
@@ -83,14 +77,11 @@ class AuthRepositoryImpl implements AuthRepository {
           state: state,
         );
         
-        print('✅ AuthRepository.registerAdult - guardando en cache');
         await localDataSource.cacheUser(user);
         return Right(user);
       } on ServerException catch (e) {
-        print('❌ AuthRepository.registerAdult - ServerException: ${e.message}');
         return Left(ServerFailure(e.message ?? 'Error al registrar usuario'));
       } catch (e) {
-        print('❌ AuthRepository.registerAdult - Exception: $e');
         return Left(ServerFailure('Error inesperado: ${e.toString()}'));
       }
     } else {
@@ -99,28 +90,59 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User>> registerTutor({
+  Future<Either<Failure, Map<String, dynamic>>> registerTutor({
     required String email,
     required String password,
     required String name,
     required String phone,
-    required String relationship,
   }) async {
     if (await networkInfo.isConnected) {
       try {
-        print('🔗 AuthRepository.registerTutor - llamando remoteDataSource');
-        final user = await remoteDataSource.registerTutor(
+        final result = await remoteDataSource.registerTutor(
           email: email,
           password: password,
           name: name,
           phone: phone,
+        );
+        
+        await localDataSource.cacheUser(result['tutor']);
+        await localDataSource.cacheToken(result['token']);
+        return Right(result);
+      } on ServerException catch (e) {
+        return Left(ServerFailure(e.message ?? 'Error al registrar tutor'));
+      } catch (e) {
+        return Left(ServerFailure('Error inesperado: ${e.toString()}'));
+      }
+    } else {
+      return Left(NetworkFailure('No hay conexión a internet'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> registerMinor({
+    required String tutorId,
+    required String name,
+    String? email,
+    required String birthdate,
+    required String semester,
+    required String state,
+    required String relationship,
+  }) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final user = await remoteDataSource.registerMinor(
+          tutorId: tutorId,
+          name: name,
+          email: email,
+          birthdate: birthdate,
+          semester: semester,
+          state: state,
           relationship: relationship,
         );
         
-        await localDataSource.cacheUser(user);
         return Right(user);
       } on ServerException catch (e) {
-        return Left(ServerFailure(e.message ?? 'Error al registrar tutor'));
+        return Left(ServerFailure(e.message ?? 'Error al registrar menor'));
       } catch (e) {
         return Left(ServerFailure('Error inesperado: ${e.toString()}'));
       }

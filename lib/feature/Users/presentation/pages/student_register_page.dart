@@ -4,14 +4,14 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../providers/auth_provider.dart';
 
-class StudentRegisterPage extends StatefulWidget {
-  const StudentRegisterPage({super.key});
+class RegisterMinorPage extends StatefulWidget {
+  const RegisterMinorPage({super.key});
 
   @override
-  State<StudentRegisterPage> createState() => _StudentRegisterPageState();
+  State<RegisterMinorPage> createState() => _RegisterMinorPageState();
 }
 
-class _StudentRegisterPageState extends State<StudentRegisterPage> {
+class _RegisterMinorPageState extends State<RegisterMinorPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -19,6 +19,7 @@ class _StudentRegisterPageState extends State<StudentRegisterPage> {
 
   String? _selectedSemester;
   String? _selectedState;
+  String? _selectedRelationship;
   bool _errorShown = false;
 
   final List<String> _semesters = [
@@ -38,6 +39,16 @@ class _StudentRegisterPageState extends State<StudentRegisterPage> {
     'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa',
     'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán',
     'Zacatecas',
+  ];
+
+  final List<String> _relationships = [
+    'Hijo',
+    'Hija',
+    'Primo',
+    'Prima',
+    'Hermano',
+    'Hermana',
+    'Otro',
   ];
 
   @override
@@ -69,16 +80,13 @@ class _StudentRegisterPageState extends State<StudentRegisterPage> {
     if (picked != null) {
       setState(() {
         _birthdateController.text =
-        '${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}';
+            '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = context.watch<AuthProvider>(); // ✅ CAMBIAR
-    final tutorUser = authProvider.user;
-
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
@@ -87,7 +95,6 @@ class _StudentRegisterPageState extends State<StudentRegisterPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.gray900),
           onPressed: () {
-            // Mostrar diálogo de confirmación
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
@@ -102,12 +109,12 @@ class _StudentRegisterPageState extends State<StudentRegisterPage> {
                   ),
                   TextButton(
                     onPressed: () async {
-                      // Cerrar sesión del tutor
+                      final authProvider = context.read<AuthProvider>();
                       await authProvider.logout();
                       if (context.mounted) {
                         Navigator.of(context).pushNamedAndRemoveUntil(
                           '/login',
-                              (route) => false,
+                          (route) => false,
                         );
                       }
                     },
@@ -122,7 +129,6 @@ class _StudentRegisterPageState extends State<StudentRegisterPage> {
       body: SafeArea(
         child: Consumer<AuthProvider>(
           builder: (context, authProvider, child) {
-            // Mostrar errores
             if (authProvider.errorMessage != null && !_errorShown) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -136,6 +142,17 @@ class _StudentRegisterPageState extends State<StudentRegisterPage> {
               });
             }
 
+            if (authProvider.isAuthenticated && authProvider.user != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/home',
+                  (route) => false,
+                );
+              });
+            }
+
+            final tutorUser = authProvider.user;
+
             return SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -144,7 +161,6 @@ class _StudentRegisterPageState extends State<StudentRegisterPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Título
                       Text(
                         'Registro del Estudiante',
                         style: AppTextStyles.h2,
@@ -161,7 +177,6 @@ class _StudentRegisterPageState extends State<StudentRegisterPage> {
 
                       const SizedBox(height: 24),
 
-                      // Info del tutor
                       if (tutorUser != null)
                         Container(
                           padding: const EdgeInsets.all(16),
@@ -198,28 +213,18 @@ class _StudentRegisterPageState extends State<StudentRegisterPage> {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              if (tutorUser.relationship != null) ...[
-                                const SizedBox(height: 2),
-                                Text(
-                                  tutorUser.relationship!,
-                                  style: AppTextStyles.bodySmall.copyWith(
-                                    color: AppColors.primary700,
-                                  ),
-                                ),
-                              ],
                             ],
                           ),
                         ),
 
                       const SizedBox(height: 32),
 
-                      // Nombre del estudiante
                       Text('Nombre completo del estudiante', style: AppTextStyles.label),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _nameController,
                         decoration: const InputDecoration(
-                          hintText: 'María López Hernández',
+                          hintText: 'Pedro González',
                           prefixIcon: Icon(Icons.person_outline),
                         ),
                         validator: (value) {
@@ -232,8 +237,7 @@ class _StudentRegisterPageState extends State<StudentRegisterPage> {
 
                       const SizedBox(height: 20),
 
-                      // Email del estudiante (opcional)
-                      Text('Correo electrónico (opcional)', style: AppTextStyles.label),
+                      Text('Correo electrónico', style: AppTextStyles.label),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _emailController,
@@ -255,14 +259,13 @@ class _StudentRegisterPageState extends State<StudentRegisterPage> {
 
                       const SizedBox(height: 20),
 
-                      // Fecha de nacimiento
                       Text('Fecha de nacimiento', style: AppTextStyles.label),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _birthdateController,
                         readOnly: true,
                         decoration: const InputDecoration(
-                          hintText: 'DD/MM/AAAA',
+                          hintText: 'AAAA-MM-DD',
                           prefixIcon: Icon(Icons.calendar_today_outlined),
                         ),
                         onTap: _selectDate,
@@ -276,7 +279,33 @@ class _StudentRegisterPageState extends State<StudentRegisterPage> {
 
                       const SizedBox(height: 20),
 
-                      // Semestre
+                      Text('Relación con el estudiante', style: AppTextStyles.label),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        value: _selectedRelationship,
+                        decoration: const InputDecoration(
+                          hintText: 'Selecciona la relación',
+                          prefixIcon: Icon(Icons.family_restroom_outlined),
+                        ),
+                        items: _relationships.map((relationship) {
+                          return DropdownMenuItem(
+                            value: relationship,
+                            child: Text(relationship),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() => _selectedRelationship = value);
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Por favor selecciona la relación';
+                          }
+                          return null;
+                        },
+                      ),
+
+                      const SizedBox(height: 20),
+
                       Text('Semestre actual', style: AppTextStyles.label),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
@@ -304,7 +333,6 @@ class _StudentRegisterPageState extends State<StudentRegisterPage> {
 
                       const SizedBox(height: 20),
 
-                      // Estado
                       Text('Estado', style: AppTextStyles.label),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
@@ -332,7 +360,6 @@ class _StudentRegisterPageState extends State<StudentRegisterPage> {
 
                       const SizedBox(height: 32),
 
-                      // Información importante
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -362,46 +389,44 @@ class _StudentRegisterPageState extends State<StudentRegisterPage> {
 
                       const SizedBox(height: 24),
 
-                      // Botón finalizar registro
                       ElevatedButton(
                         onPressed: authProvider.isLoading
                             ? null
                             : () async {
-                          if (_formKey.currentState!.validate()) {
-                            setState(() => _errorShown = false);
+                                if (_formKey.currentState!.validate()) {
+                                  setState(() => _errorShown = false);
 
-                            final success = await authProvider.registerMinor(
-                              name: _nameController.text.trim(),
-                              email: _emailController.text.trim().isEmpty
-                                  ? null
-                                  : _emailController.text.trim(),
-                              birthdate: _birthdateController.text,
-                              semester: _selectedSemester!,
-                              state: _selectedState!,
-                            );
+                                  final success = await authProvider.registerMinor(
+                                    name: _nameController.text.trim(),
+                                    email: _emailController.text.trim().isEmpty
+                                        ? null
+                                        : _emailController.text.trim(),
+                                    birthdate: _birthdateController.text,
+                                    semester: _selectedSemester!,
+                                    state: _selectedState!,
+                                    relationship: _selectedRelationship!,
+                                  );
 
-                            if (success && mounted) {
-                              // Navegar a la página principal
-                              Navigator.of(context).pushNamedAndRemoveUntil(
-                                '/home',
-                                    (route) => false,
-                              );
-                            }
-                          }
-                        },
+                                  if (!success && mounted) {
+                                    // Error se muestra automáticamente
+                                  }
+                                }
+                              },
                         child: authProvider.isLoading
                             ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              AppColors.white,
-                            ),
-                          ),
-                        )
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    AppColors.white,
+                                  ),
+                                ),
+                              )
                             : const Text('Finalizar Registro'),
                       ),
+
+                      const SizedBox(height: 24),
                     ],
                   ),
                 ),

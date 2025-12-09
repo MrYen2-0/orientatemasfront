@@ -9,15 +9,11 @@ class User extends Equatable {
   final DateTime createdAt;
   final bool hasCompletedEvaluation;
 
-  // Campos para tutores
   final bool isTutor;
   final String? phone;
-  final String? relationship; // Relación con el menor (Padre, Madre, Tutor Legal, etc.)
-
-  // Campos del menor (cuando el usuario es tutor)
-  final String? minorName;
-  final String? minorEmail;
-  final String? minorBirthdate;
+  final String? relationship;
+  final String? tutorId;
+  final String? birthdate;
 
   const User({
     required this.id,
@@ -30,9 +26,8 @@ class User extends Equatable {
     this.isTutor = false,
     this.phone,
     this.relationship,
-    this.minorName,
-    this.minorEmail,
-    this.minorBirthdate,
+    this.tutorId,
+    this.birthdate,
   });
 
   @override
@@ -47,19 +42,17 @@ class User extends Equatable {
     isTutor,
     phone,
     relationship,
-    minorName,
-    minorEmail,
-    minorBirthdate,
+    tutorId,
+    birthdate,
   ];
 
-  // Método para obtener el nombre a mostrar
-  String get displayName => isTutor && minorName != null ? minorName! : name;
-
-  // Método para verificar si el registro está completo
   bool get isRegistrationComplete {
     if (isTutor) {
-      return minorName != null && minorBirthdate != null && semester != null && state != null;
+      return phone != null;
     }
-    return true;
+    if (tutorId != null) {
+      return birthdate != null && semester != null && state != null && relationship != null;
+    }
+    return semester != null && state != null;
   }
 }

@@ -251,15 +251,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     
     // Extraer información del progreso
     final preguntaActual = provider.preguntasRespondidas + 1; // Pregunta actual
-    final totalRespuestas = provider.preguntasRespondidas;
     final porcentajeEstimado = (progreso['porcentaje_estimado'] ?? 0.0).toDouble();
-    final faseActual = progreso['fase_actual'] ?? 'fase1';
-
-    print('🎯 Debug progreso:');
-    print('   - Pregunta actual: $preguntaActual');
-    print('   - Total respuestas: $totalRespuestas');
-    print('   - Porcentaje: $porcentajeEstimado');
-    print('   - Fase: $faseActual');
 
     return Column(
       children: [
@@ -333,16 +325,6 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     );
   }
 
-  String _getFaseTexto(String fase) {
-    switch (fase) {
-      case 'fase1':
-        return 'Exploración general';
-      case 'fase2':
-        return 'Profundizando';
-      default:
-        return 'En progreso';
-    }
-  }
 
   Widget _buildQuestionCard(Map<String, dynamic> question) {
     return Container(
@@ -423,7 +405,6 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: opciones.asMap().entries.map((entry) {
-        final index = entry.key;
         final opcionTexto = entry.value;
         
         String textoLimpio = opcionTexto;

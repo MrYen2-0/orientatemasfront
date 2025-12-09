@@ -26,12 +26,12 @@ class _RegisterPageState extends State<RegisterPage> {
   String? _selectedState;
 
   final List<String> _semesters = [
-    '1° Semestre',
-    '2° Semestre',
-    '3° Semestre',
-    '4° Semestre',
-    '5° Semestre',
-    '6° Semestre',
+    '1°',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
   ];
 
   final List<String> _states = [
@@ -68,7 +68,6 @@ class _RegisterPageState extends State<RegisterPage> {
       body: SafeArea(
         child: Consumer<AuthProvider>(
           builder: (context, authProvider, child) {
-            // Mostrar errores
             if (authProvider.errorMessage != null && !_errorShown) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -82,12 +81,11 @@ class _RegisterPageState extends State<RegisterPage> {
               });
             }
 
-            // Navegar a home si está autenticado
             if (authProvider.isAuthenticated) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushNamedAndRemoveUntil(
                   '/home',
-                      (route) => false,
+                  (route) => false,
                 );
               });
             }
@@ -115,7 +113,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       const SizedBox(height: 32),
 
-                      // Nombre
                       Text('Nombre completo', style: AppTextStyles.label),
                       const SizedBox(height: 8),
                       TextFormField(
@@ -134,7 +131,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
                       const SizedBox(height: 20),
 
-                      // Email
                       Text('Correo electrónico', style: AppTextStyles.label),
                       const SizedBox(height: 8),
                       TextFormField(
@@ -158,7 +154,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
                       const SizedBox(height: 20),
 
-                      // Contraseña
                       Text('Contraseña', style: AppTextStyles.label),
                       const SizedBox(height: 8),
                       TextFormField(
@@ -193,7 +188,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
                       const SizedBox(height: 20),
 
-                      // Confirmar contraseña
                       Text('Confirmar contraseña', style: AppTextStyles.label),
                       const SizedBox(height: 8),
                       TextFormField(
@@ -229,8 +223,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                       const SizedBox(height: 20),
 
-                      // Semestre
-                      Text('Semestre (opcional)', style: AppTextStyles.label),
+                      Text('Semestre', style: AppTextStyles.label),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
                         value: _selectedSemester,
@@ -241,18 +234,23 @@ class _RegisterPageState extends State<RegisterPage> {
                         items: _semesters.map((semester) {
                           return DropdownMenuItem(
                             value: semester,
-                            child: Text(semester),
+                            child: Text('$semester° Semestre'),
                           );
                         }).toList(),
                         onChanged: (value) {
                           setState(() => _selectedSemester = value);
                         },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor selecciona tu semestre';
+                          }
+                          return null;
+                        },
                       ),
 
                       const SizedBox(height: 20),
 
-                      // Estado
-                      Text('Estado (opcional)', style: AppTextStyles.label),
+                      Text('Estado', style: AppTextStyles.label),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
                         value: _selectedState,
@@ -269,11 +267,16 @@ class _RegisterPageState extends State<RegisterPage> {
                         onChanged: (value) {
                           setState(() => _selectedState = value);
                         },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor selecciona tu estado';
+                          }
+                          return null;
+                        },
                       ),
 
                       const SizedBox(height: 32),
 
-                      // Botón registrar
                       ElevatedButton(
                         onPressed: authProvider.isLoading
                             ? null
@@ -281,16 +284,15 @@ class _RegisterPageState extends State<RegisterPage> {
                           if (_formKey.currentState!.validate()) {
                             setState(() => _errorShown = false);
 
-                            final success = await authProvider.register(
+                            final success = await authProvider.registerAdult(
                               email: _emailController.text.trim(),
                               password: _passwordController.text,
                               name: _nameController.text.trim(),
-                              semester: _selectedSemester,
-                              state: _selectedState,
+                              semester: _selectedSemester!,
+                              state: _selectedState!,
                             );
 
                             if (!success && mounted) {
-                              // Error se muestra automáticamente
                             }
                           }
                         },

@@ -16,19 +16,16 @@ class AuthGuard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, _) {
-        // Si no está autenticado, mostrar login
         if (!authProvider.isAuthenticated) {
           return const LoginPage();
         }
 
         final user = authProvider.user;
 
-        // Si es tutor y no ha completado el registro del menor
         if (user != null && user.isTutor && !user.isRegistrationComplete) {
-          return const StudentRegisterPage();
+          return const RegisterMinorPage();
         }
 
-        // Usuario completo, mostrar la página solicitada
         return child;
       },
     );

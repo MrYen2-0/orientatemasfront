@@ -3,22 +3,18 @@ import '../../../../core/error/failures.dart';
 import '../entities/user.dart';
 import '../repositories/auth_repository.dart';
 
-class RegisterUseCase {
+class RegisterAdultUseCase {
   final AuthRepository repository;
 
-  RegisterUseCase(this.repository);
+  RegisterAdultUseCase(this.repository);
 
-  /// Registro de estudiante adulto via Gateway
   Future<Either<Failure, User>> call({
     required String email,
     required String password,
     required String name,
-    String? semester,
-    String? state,
+    required String semester,
+    required String state,
   }) async {
-    print('🔧 RegisterUseCase.call iniciado');
-    
-    // Llamar al método registerAdult del repository
     return await repository.registerAdult(
       email: email,
       password: password,

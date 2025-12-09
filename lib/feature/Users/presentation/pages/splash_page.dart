@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../providers/auth_provider.dart';
 
@@ -18,17 +19,15 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<void> _navigateToNextScreen() async {
-    // Esperar 2 segundos para mostrar splash
     await Future.delayed(const Duration(seconds: 2));
 
     if (mounted) {
       final authProvider = context.read<AuthProvider>();
 
-      // Ya se inicializó en main.dart, solo verificar estado
       if (authProvider.isAuthenticated) {
-        Navigator.of(context).pushReplacementNamed('/home');
+        context.go('/home');
       } else {
-        Navigator.of(context).pushReplacementNamed('/login');
+        context.go('/login');
       }
     }
   }
@@ -41,7 +40,6 @@ class _SplashPageState extends State<SplashPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Logo
             Container(
               width: 120,
               height: 120,

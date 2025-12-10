@@ -37,7 +37,20 @@ void main() async {
         ChangeNotifierProvider(create: (_) => di.sl<CareerProvider>()),
         ChangeNotifierProvider(create: (_) => di.sl<ProfileProvider>()),
         ChangeNotifierProvider(create: (_) => di.sl<NotificationProvider>()),
-        ChangeNotifierProvider(create: (_) => QuestionnaireProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, QuestionnaireProvider>(
+          create: (context) => QuestionnaireProvider(),
+          update: (context, authProvider, previous) {
+            if (previous != null) {
+              previous.updateTokenGetter(
+                () => authProvider.authToken,
+              );
+              return previous;
+            }
+            return QuestionnaireProvider(
+              getToken: () => authProvider.authToken,
+            );
+          },
+        ),
       ],
       child: const MyApp(),
     ),

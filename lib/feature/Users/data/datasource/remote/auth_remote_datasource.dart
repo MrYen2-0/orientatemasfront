@@ -4,12 +4,12 @@ import '../../../../../core/error/exceptions.dart';
 import '../../../../../core/constants/api_constants.dart';
 
 abstract class AuthRemoteDataSource {
-  Future<UserModel> login({
+  Future<Map<String, dynamic>> login({
     required String email,
     required String password,
   });
   
-  Future<UserModel> registerAdult({
+  Future<Map<String, dynamic>> registerAdult({
     required String email,
     required String password,
     required String name,
@@ -57,7 +57,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<UserModel> login({
+  Future<Map<String, dynamic>> login({
     required String email,
     required String password,
   }) async {
@@ -72,7 +72,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       
       if (response.statusCode == 200) {
         final userData = response.data['user'];
-        return UserModel.fromJson(userData);
+        final token = response.data['token'];
+        
+        if (userData == null || token == null) {
+          throw ServerException('Respuesta incompleta del servidor');
+        }
+        
+        return {
+          'user': UserModel.fromJson(userData),
+          'token': token,
+        };
       } else {
         throw ServerException('Login failed: ${response.statusMessage}');
       }
@@ -87,12 +96,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw ServerException('Error de conexión. Verifica tu conexión a internet.');
       }
     } catch (e) {
+      if (e is ServerException) {
+        rethrow;
+      }
       throw ServerException('Error inesperado: $e');
     }
   }
 
   @override
-  Future<UserModel> registerAdult({
+  Future<Map<String, dynamic>> registerAdult({
     required String email,
     required String password,
     required String name,
@@ -117,11 +129,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         }
         
         final userData = response.data['user'];
-        if (userData == null) {
-          throw ServerException('El servidor no devolvió los datos del usuario');
+        final token = response.data['token'];
+        
+        if (userData == null || token == null) {
+          throw ServerException('El servidor no devolvió los datos completos');
         }
         
-        return UserModel.fromJson(userData);
+        return {
+          'user': UserModel.fromJson(userData),
+          'token': token,
+        };
       } else {
         throw ServerException('Registration failed: ${response.statusMessage}');
       }
@@ -162,9 +179,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       
       if (response.statusCode == 201 || response.statusCode == 200) {
+        final tutorData = response.data['tutor'];
+        final token = response.data['token'];
+        
+        if (tutorData == null || token == null) {
+          throw ServerException('Respuesta incompleta del servidor');
+        }
+        
         return {
-          'tutor': UserModel.fromJson(response.data['tutor']),
-          'token': response.data['token'],
+          'tutor': UserModel.fromJson(tutorData),
+          'token': token,
         };
       } else {
         throw ServerException('Tutor registration failed');
@@ -179,6 +203,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       } else {
         throw ServerException('Error de conexión. Verifica tu conexión a internet.');
       }
+    } catch (e) {
+      if (e is ServerException) {
+        rethrow;
+      }
+      throw ServerException('Error inesperado: $e');
     }
   }
 
@@ -222,6 +251,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       } else {
         throw ServerException('Error de conexión. Verifica tu conexión a internet.');
       }
+    } catch (e) {
+      if (e is ServerException) {
+        rethrow;
+      }
+      throw ServerException('Error inesperado: $e');
     }
   }
 

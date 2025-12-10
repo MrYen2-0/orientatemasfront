@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/questionnaire_provider.dart';
-import '../../domain/entities/questionnaire_session.dart';
+import '../../domain/entities/questionnaire_session.dart' as entities;
 
 class QuestionnaireResultsPage extends StatelessWidget {
   const QuestionnaireResultsPage({Key? key}) : super(key: key);
@@ -31,21 +31,20 @@ class QuestionnaireResultsPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Header con celebración
                 _buildHeaderSection(context, results),
-
-                // Resumen ejecutivo
+                
                 if (results.resumenEjecutivo != null)
                   _buildResumenSection(context, results.resumenEjecutivo!),
-
-                // Recomendaciones de carreras
+                
+                if (results.mensajeMotivacional != null)
+                  _buildMotivationalSection(context, results.mensajeMotivacional!),
+                
+                _buildCapacidadSection(context, results),
+                
                 _buildRecommendationsSection(context, results.recomendaciones),
-
-
-
-                // Botón de finalizar
+                
                 _buildActionButtons(context),
-
+                
                 const SizedBox(height: 24),
               ],
             ),
@@ -55,8 +54,7 @@ class QuestionnaireResultsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildLoadingOrError(
-      BuildContext context, QuestionnaireProvider provider) {
+  Widget _buildLoadingOrError(BuildContext context, QuestionnaireProvider provider) {
     if (provider.status == QuestionnaireStatus.loading) {
       return const Center(
         child: Column(
@@ -98,8 +96,7 @@ class QuestionnaireResultsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderSection(
-      BuildContext context, QuestionnaireResults results) {
+  Widget _buildHeaderSection(BuildContext context, entities.QuestionnaireResults results) {
     final theme = Theme.of(context);
 
     return Container(
@@ -175,7 +172,7 @@ class QuestionnaireResultsPage extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Resumen',
+                    'Resumen Ejecutivo',
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -196,8 +193,139 @@ class QuestionnaireResultsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildRecommendationsSection(
-      BuildContext context, List<CareerRecommendation> recomendaciones) {
+  Widget _buildMotivationalSection(BuildContext context, String mensaje) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Card(
+        color: theme.colorScheme.primaryContainer,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.favorite,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Mensaje Personalizado',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                mensaje,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  height: 1.5,
+                  color: theme.colorScheme.onPrimaryContainer,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCapacidadSection(BuildContext context, entities.QuestionnaireResults results) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.trending_up,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Tu Perfil Académico',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Capacidad Académica',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                      Text(
+                        '${(results.capacidadAcademica * 100).toStringAsFixed(1)}%',
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'Categoría',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.secondaryContainer,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          results.categoria.toUpperCase(),
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.onSecondaryContainer,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              if (results.ramaUniversitaria != null) ...[
+                const SizedBox(height: 12),
+                Text(
+                  'Rama Recomendada: ${results.ramaUniversitaria}',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecommendationsSection(BuildContext context, List<entities.CareerRecommendation> recomendaciones) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -210,14 +338,13 @@ class QuestionnaireResultsPage extends StatelessWidget {
                 ),
           ),
           const SizedBox(height: 16),
-          ...recomendaciones.map((rec) => _buildCareerCard(context, rec)),
+          ...recomendaciones.take(3).map((rec) => _buildCareerCard(context, rec)),
         ],
       ),
     );
   }
 
-  Widget _buildCareerCard(
-      BuildContext context, CareerRecommendation recomendacion) {
+  Widget _buildCareerCard(BuildContext context, entities.CareerRecommendation recomendacion) {
     final theme = Theme.of(context);
     final matchPercentage = (recomendacion.matchScore * 100).toInt();
 
@@ -229,7 +356,6 @@ class QuestionnaireResultsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header con ranking y match
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -239,7 +365,6 @@ class QuestionnaireResultsPage extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  // Badge de ranking
                   Container(
                     width: 40,
                     height: 40,
@@ -258,7 +383,6 @@ class QuestionnaireResultsPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  // Nombre de carrera
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,7 +408,6 @@ class QuestionnaireResultsPage extends StatelessWidget {
               ),
             ),
 
-            // Match score
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -318,19 +441,60 @@ class QuestionnaireResultsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
 
-                  // Explicación breve
-                  Text(
-                    recomendacion.explicacion,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      height: 1.5,
+                  if (recomendacion.explicacionGenerada) 
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: theme.colorScheme.primary.withOpacity(0.3),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.auto_awesome,
+                                size: 16,
+                                color: theme.colorScheme.primary,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Análisis Personalizado',
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: theme.colorScheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            recomendacion.explicacionPersonalizada,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              height: 1.4,
+                            ),
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    Text(
+                      recomendacion.explicacion,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        height: 1.5,
+                      ),
+                      maxLines: 4,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 4,
-                    overflow: TextOverflow.ellipsis,
-                  ),
 
                   const SizedBox(height: 16),
 
-                  // Info adicional
                   Wrap(
                     spacing: 12,
                     runSpacing: 8,
@@ -355,12 +519,10 @@ class QuestionnaireResultsPage extends StatelessWidget {
 
                   const SizedBox(height: 12),
 
-                  // Ver más
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton.icon(
-                      onPressed: () =>
-                          _showCareerDetails(context, recomendacion),
+                      onPressed: () => _showCareerDetails(context, recomendacion),
                       icon: const Icon(Icons.info_outline),
                       label: const Text('Ver más detalles'),
                     ),
@@ -398,7 +560,6 @@ class QuestionnaireResultsPage extends StatelessWidget {
     );
   }
 
-
   Widget _buildActionButtons(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -427,8 +588,7 @@ class QuestionnaireResultsPage extends StatelessWidget {
     );
   }
 
-  void _showCareerDetails(
-      BuildContext context, CareerRecommendation recomendacion) {
+  void _showCareerDetails(BuildContext context, entities.CareerRecommendation recomendacion) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -455,12 +615,12 @@ class QuestionnaireResultsPage extends StatelessWidget {
                       height: 4,
                       margin: const EdgeInsets.only(bottom: 20),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.onSurfaceVariant
-                            .withOpacity(0.4),
+                        color: theme.colorScheme.onSurfaceVariant.withOpacity(0.4),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                   ),
+                  
                   Text(
                     recomendacion.carrera,
                     style: theme.textTheme.headlineSmall?.copyWith(
@@ -474,9 +634,51 @@ class QuestionnaireResultsPage extends StatelessWidget {
                       color: theme.colorScheme.primary,
                     ),
                   ),
+                  
                   const SizedBox(height: 24),
+                  
+                  if (recomendacion.explicacionGenerada) ...[
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primaryContainer.withOpacity(0.5),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: theme.colorScheme.primary.withOpacity(0.3),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.auto_awesome,
+                                color: theme.colorScheme.primary,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Análisis Personalizado IA',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.colorScheme.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            recomendacion.explicacionPersonalizada,
+                            style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                  
                   Text(
-                    'Explicación Completa',
+                    'Información Detallada',
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -486,50 +688,58 @@ class QuestionnaireResultsPage extends StatelessWidget {
                     recomendacion.explicacion,
                     style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
                   ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'Fortalezas',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  ...recomendacion.fortalezas.map(
-                    (f) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.check_circle,
-                              color: Colors.green, size: 20),
-                          const SizedBox(width: 8),
-                          Expanded(child: Text(f)),
-                        ],
+                  
+                  if (recomendacion.fortalezas.isNotEmpty) ...[
+                    const SizedBox(height: 24),
+                    Text(
+                      'Fortalezas y Ventajas',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'Consideraciones',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  ...recomendacion.consideraciones.map(
-                    (c) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.info_outline,
-                              color: theme.colorScheme.primary, size: 20),
-                          const SizedBox(width: 8),
-                          Expanded(child: Text(c)),
-                        ],
+                    const SizedBox(height: 8),
+                    ...recomendacion.fortalezas.map(
+                      (f) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(Icons.check_circle, color: Colors.green, size: 20),
+                            const SizedBox(width: 8),
+                            Expanded(child: Text(f)),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
+                  ],
+                  
+                  if (recomendacion.consideraciones.isNotEmpty) ...[
+                    const SizedBox(height: 24),
+                    Text(
+                      'Consideraciones Importantes',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ...recomendacion.consideraciones.map(
+                      (c) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              color: theme.colorScheme.primary,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(child: Text(c)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             );

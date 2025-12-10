@@ -40,26 +40,6 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     super.dispose();
   }
 
-  // Función que genera orden consistente basado en ID de pregunta
-  List<String> _getShuffledOptions(List<String> opciones, String preguntaId) {
-    final List<String> opcionesCopia = List.from(opciones);
-    
-    // Usar el hash del ID como semilla para generar siempre el mismo orden
-    final seed = preguntaId.hashCode;
-    final random = Random(seed);
-    
-    // Algoritmo Fisher-Yates con semilla fija
-    for (int i = opcionesCopia.length - 1; i > 0; i--) {
-      final j = random.nextInt(i + 1);
-      final temp = opcionesCopia[i];
-      opcionesCopia[i] = opcionesCopia[j];
-      opcionesCopia[j] = temp;
-    }
-    
-    return opcionesCopia;
-  }
-
-  // Función para convertir texto seleccionado de vuelta a letra para el backend
   String _convertTextToLetter(String selectedText) {
     final question = context.read<QuestionnaireProvider>().currentQuestion?['pregunta'];
     final opcionesRaw = question?['opciones'];
@@ -249,9 +229,14 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     final question = provider.currentQuestion!['pregunta'];
     final progreso = provider.currentQuestion!['progreso'] ?? {};
     
-    // Extraer información del progreso
-    final preguntaActual = provider.preguntasRespondidas + 1; // Pregunta actual
-    final porcentajeEstimado = (progreso['porcentaje_estimado'] ?? 0.0).toDouble();
+   print('DEBUG - progreso completo: $progreso');
+  print('DEBUG - keys disponibles: ${progreso.keys}');
+  
+  final preguntaActual = provider.preguntasRespondidas + 1;
+  final porcentajeEstimado = (progreso['porcentaje_estimado'] ?? 0.0).toDouble();
+  
+  print('DEBUG - porcentajeEstimado: $porcentajeEstimado');
+  print('DEBUG - preguntaActual: $preguntaActual');
 
     return Column(
       children: [
@@ -280,7 +265,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Pregunta $preguntaActual · ${porcentajeEstimado.toStringAsFixed(1)}% completado',
+                    'Pregunta $preguntaActual',
                     style: const TextStyle(
                       color: Color(0xFF1E40AF), // primary700
                       fontWeight: FontWeight.w600,
@@ -344,29 +329,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDBEAFE), // primary100
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  question['id'] ?? '',
-                  style: const TextStyle(
-                    color: Color(0xFF1E40AF), // primary700
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 5),
           Text(
             question['texto'] ?? '',
             style: const TextStyle(
@@ -381,111 +344,128 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     );
   }
 
-  Widget _buildAnswerOptions(Map<String, dynamic> question) {
-    final opcionesRaw = question['opciones'];
-    List<String> opciones = [];
+ Widget _buildAnswerOptions(Map<String, dynamic> question) {
+  final opcionesRaw = question['opciones'];
+  List<MapEntry<String, String>> opciones = [];
 
-    if (opcionesRaw is List) {
-      opciones = opcionesRaw.map((e) => e.toString()).toList();
-    } else if (opcionesRaw is String) {
-      try {
-        final parsed = json.decode(opcionesRaw);
-        if (parsed is List) {
-          opciones = parsed.map((e) => e.toString()).toList();
-        }
-      } catch (e) {
-        print('Error parseando opciones: $e');
-      }
+  if (opcionesRaw is Map) {
+    opciones = opcionesRaw.entries
+        .map((e) => MapEntry(e.key.toString(), e.value.toString()))
+        .toList();
+  } else if (opcionesRaw is List) {
+    for (int i = 0; i < opcionesRaw.length; i++) {
+      final letra = String.fromCharCode(65 + i);
+      opciones.add(MapEntry(letra, opcionesRaw[i].toString()));
     }
+  } else if (opcionesRaw is String) {
+    try {
+      final parsed = json.decode(opcionesRaw);
+      if (parsed is Map) {
+        opciones = parsed.entries
+            .map((e) => MapEntry(e.key.toString(), e.value.toString()))
+            .toList();
+      }
+    } catch (e) {
+      print('Error parseando opciones: $e');
+    }
+  }
 
-    // Orden fijo basado en el ID de la pregunta
-    final preguntaId = question['id'] ?? '';
-    opciones = _getShuffledOptions(opciones, preguntaId);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: opciones.asMap().entries.map((entry) {
-        final opcionTexto = entry.value;
-        
-        String textoLimpio = opcionTexto;
-        if (opcionTexto.contains(') ')) {
-          textoLimpio = opcionTexto.split(') ').last;
-        }
-        
-        final isSelected = _selectedAnswer == textoLimpio;
-
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: InkWell(
-            onTap: () {
-              setState(() {
-                _selectedAnswer = textoLimpio;
-              });
-            },
-            borderRadius: BorderRadius.circular(16),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? const Color(0xFFDBEAFE) // primary100
-                    : const Color(0xFFFFFFFF), // white
-                border: Border.all(
-                  color: isSelected
-                      ? const Color(0xFF2563EB) // primary600
-                      : const Color(0xFFD1D5DB), // gray300
-                  width: isSelected ? 2 : 1,
-                ),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 20,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: isSelected
-                            ? const Color(0xFF2563EB) // primary600
-                            : const Color(0xFF9CA3AF), // gray400
-                        width: 2,
-                      ),
-                      color: isSelected
-                          ? const Color(0xFF2563EB) // primary600
-                          : Colors.transparent,
-                    ),
-                    child: isSelected
-                        ? const Icon(
-                            Icons.check,
-                            color: Color(0xFFFFFFFF), // white
-                            size: 14,
-                          )
-                        : null,
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Text(
-                      textoLimpio,
-                      style: TextStyle(
-                        color: isSelected
-                            ? const Color(0xFF1E40AF) // primary700
-                            : const Color(0xFF111827), // gray900
-                        fontWeight: isSelected
-                            ? FontWeight.w600
-                            : FontWeight.normal,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      }).toList(),
+  if (opciones.isEmpty) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Text(
+          'Error: No se pudieron cargar las opciones de respuesta',
+          style: TextStyle(color: Colors.red),
+        ),
+      ),
     );
   }
 
+  final preguntaId = question['id'] ?? '';
+  final seed = preguntaId.hashCode;
+  final random = Random(seed);
+  opciones.shuffle(random);
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: opciones.map((entry) {
+      final letra = entry.key;
+      final texto = entry.value;
+      final isSelected = _selectedAnswer == letra;
+
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: InkWell(
+          onTap: () {
+            setState(() {
+              _selectedAnswer = letra;
+            });
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? const Color(0xFFDBEAFE)
+                  : const Color(0xFFFFFFFF),
+              border: Border.all(
+                color: isSelected
+                    ? const Color(0xFF2563EB)
+                    : const Color(0xFFD1D5DB),
+                width: isSelected ? 2 : 1,
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isSelected
+                          ? const Color(0xFF2563EB)
+                          : const Color(0xFF9CA3AF),
+                      width: 2,
+                    ),
+                    color: isSelected
+                        ? const Color(0xFF2563EB)
+                        : Colors.transparent,
+                  ),
+                  child: isSelected
+                      ? const Icon(
+                          Icons.check,
+                          color: Color(0xFFFFFFFF),
+                          size: 14,
+                        )
+                      : null,
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    texto,
+                    style: TextStyle(
+                      color: isSelected
+                          ? const Color(0xFF1E40AF)
+                          : const Color(0xFF111827),
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }).toList(),
+  );
+}
+ 
   Widget _buildSubmitButton() {
     return SizedBox(
       width: double.infinity,

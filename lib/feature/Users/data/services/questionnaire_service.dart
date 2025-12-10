@@ -1,132 +1,146 @@
 import 'package:dio/dio.dart';
 import '../../../../../core/constants/api_constants.dart';
+import '../models/prediction_response_model.dart';
 
 class QuestionnaireService {
   final Dio dio;
+  String? Function()? _getToken;
 
-  QuestionnaireService({required this.dio}) {
+  QuestionnaireService({required this.dio, String? Function()? getToken})
+    : _getToken = getToken {
     dio.options.baseUrl = ApiConstants.baseUrl;
     dio.options.headers = ApiConstants.headers;
-    
-    // Interceptor para logs
-    dio.interceptors.add(LogInterceptor(
-      request: true,
-      requestBody: true,
-      responseBody: true,
-      error: true,
-      logPrint: (obj) => print('🌐 QUESTIONNAIRE: $obj'),
-    ));
+
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          final token = _getToken?.call();
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          return handler.next(options);
+        },
+      ),
+    );
+
+    dio.interceptors.add(
+      LogInterceptor(
+        request: true,
+        requestBody: true,
+        responseBody: true,
+        error: true,
+      ),
+    );
   }
 
-  /// Verificar salud del servicio de questionnaires
-  Future<bool> verifyHealth() async {
-    try {
-      print('🏥 Verificando salud del servicio questionnaire...');
-      
-      final response = await dio.get('/api/v1/questionnaire/health');
-      
-      if (response.statusCode == 200) {
-        print('✅ Servicio questionnaire saludable');
-        return true;
-      }
-      
-      return false;
-    } catch (e) {
-      print('❌ Error verificando salud del servicio questionnaire: $e');
-      return false;
-    }
+  void updateTokenGetter(String? Function() getToken) {
+    _getToken = getToken;
   }
 
-  /// Iniciar sesión de cuestionario VIA GATEWAY
-  Future<String?> startSession(String userId) async {
+  Future<String?> startSession({Map<String, dynamic>? metadata}) async {
     try {
-      print('🚀 Iniciando sesión de cuestionario para usuario: $userId');
-      
       final response = await dio.post(
-        '/api/v1/questionnaire/session/start',  // ← VIA GATEWAY
-        data: {'userId': userId},
-      );
-
-      print('✅ Respuesta session/start: ${response.statusCode}');
-      print('📦 Data: ${response.data}');
-
-      if (response.statusCode == 200 && response.data != null) {
-        final sessionId = response.data['sessionId'] ?? response.data['session_id'];
-        print('✅ Sesión de cuestionario iniciada: $sessionId');
-        return sessionId;
-      }
-      
-      return null;
-    } catch (e) {
-      print('❌ Error iniciando sesión de cuestionario: $e');
-      return null;
-    }
-  }
-
-  /// Obtener siguiente pregunta VIA GATEWAY
-  Future<Map<String, dynamic>?> getNextQuestion(String sessionId) async {
-    try {
-      print('❓ Obteniendo siguiente pregunta para sesión: $sessionId');
-      
-      final response = await dio.get(
-        '/api/v1/questionnaire/session/$sessionId/next-question'
-      );
-
-      if (response.statusCode == 200 && response.data != null) {
-        print('✅ Pregunta obtenida exitosamente');
-        return response.data;
-      }
-      
-      return null;
-    } catch (e) {
-      print('❌ Error obteniendo siguiente pregunta: $e');
-      return null;
-    }
-  }
-
-  /// Enviar respuesta VIA GATEWAY
-  Future<bool> submitAnswer(String sessionId, int questionId, String answer) async {
-    try {
-      print('📝 Enviando respuesta para sesión $sessionId, pregunta $questionId');
-      
-      final response = await dio.post(
-        '/api/v1/questionnaire/session/$sessionId/answer',
+        '/api/questionnaire/session/start',
         data: {
-          'questionId': questionId,
-          'answer': answer,
+          'metadata':
+              metadata ??
+              {
+                'timestamp': DateTime.now().toIso8601String(),
+                'source': 'flutter_app',
+              },
         },
       );
 
-      if (response.statusCode == 200) {
-        print('✅ Respuesta enviada exitosamente');
-        return true;
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final sessionId =
+            response.data['session_id'] ?? response.data['sessionId'];
+        return sessionId;
       }
-      
-      return false;
+
+      return null;
+    } on DioException catch (e) {
+      print('Error iniciando sesión: ${e.message}');
+      print('Response: ${e.response?.data}');
+      return null;
     } catch (e) {
-      print('❌ Error enviando respuesta: $e');
-      return false;
+      print('Error: $e');
+      return null;
     }
   }
 
-  /// Obtener predicción/resultados VIA GATEWAY
-  Future<Map<String, dynamic>?> getResults(String sessionId) async {
+  Future<Map<String, dynamic>?> getNextQuestion(String sessionId) async {
     try {
-      print('📊 Obteniendo resultados para sesión: $sessionId');
-      
       final response = await dio.get(
-        '/api/v1/questionnaire/session/$sessionId/prediction'
+        '/api/questionnaire/session/$sessionId/next-question',
       );
 
       if (response.statusCode == 200 && response.data != null) {
-        print('✅ Resultados obtenidos exitosamente');
         return response.data;
       }
-      
+
+      return null;
+    } on DioException catch (e) {
+      print('Error obteniendo pregunta: ${e.message}');
+      print('Response: ${e.response?.data}');
       return null;
     } catch (e) {
-      print('❌ Error obteniendo resultados: $e');
+      print('Error: $e');
       return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> submitAnswer(
+    String sessionId,
+    String preguntaId,
+    String respuesta,
+  ) async {
+    try {
+      final response = await dio.post(
+        '/api/questionnaire/session/$sessionId/answer',
+        data: {'pregunta_id': preguntaId, 'respuesta': respuesta},
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        return response.data;
+      }
+
+      return null;
+    } on DioException catch (e) {
+      print('Error enviando respuesta: ${e.message}');
+      print('Response: ${e.response?.data}');
+      return null;
+    } catch (e) {
+      print('Error: $e');
+      return null;
+    }
+  }
+
+Future<PredictionResponse?> getResults(String sessionId) async {
+  try {
+    final response = await dio.get(
+      '/api/questionnaire/session/$sessionId/prediction'
+    );
+
+    if (response.statusCode == 200 && response.data != null) {
+      return PredictionResponse.fromJson(response.data);
+    }
+    
+    return null;
+  } on DioException catch (e) {
+    print('Error obteniendo resultados: ${e.message}');
+    print('Response: ${e.response?.data}');
+    return null;
+  } catch (e) {
+    print('Error: $e');
+    return null;
+  }
+}
+  Future<bool> healthCheck() async {
+    try {
+      final response = await dio.get('/api/questionnaire/health');
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
     }
   }
 }

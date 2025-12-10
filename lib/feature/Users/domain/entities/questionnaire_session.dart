@@ -180,19 +180,37 @@ class SessionStatistics {
 }
 
 class CareerRecommendation {
-  final String carrera;
-  final double matchScore;
   final int ranking;
+  final String codigo;
+  final String carrera;
+  final String nombreCompleto;
+  final double matchScore;
+  final String matchScorePorcentaje;
+  final String categoria;
+  final String? rama;
   final String explicacion;
+  final String explicacionPersonalizada;
+  final bool explicacionGenerada;
+  final Map<String, dynamic> infoBasica;
+  final Map<String, dynamic> mercadoLaboral;
   final List<String> fortalezas;
   final List<String> consideraciones;
   final Map<String, dynamic> infoAdicional;
 
   CareerRecommendation({
-    required this.carrera,
-    required this.matchScore,
     required this.ranking,
+    required this.codigo,
+    required this.carrera,
+    required this.nombreCompleto,
+    required this.matchScore,
+    required this.matchScorePorcentaje,
+    required this.categoria,
+    this.rama,
     required this.explicacion,
+    required this.explicacionPersonalizada,
+    required this.explicacionGenerada,
+    required this.infoBasica,
+    required this.mercadoLaboral,
     required this.fortalezas,
     required this.consideraciones,
     required this.infoAdicional,
@@ -200,62 +218,154 @@ class CareerRecommendation {
 
   factory CareerRecommendation.fromJson(Map<String, dynamic> json) {
     return CareerRecommendation(
-      carrera: json['carrera'] ?? '',
-      matchScore: (json['match_score'] ?? 0.0).toDouble(),
       ranking: json['ranking'] ?? 0,
-      explicacion: json['explicacion'] ?? '',
-      fortalezas: List<String>.from(json['fortalezas'] ?? []),
-      consideraciones: List<String>.from(json['consideraciones'] ?? []),
-      infoAdicional: Map<String, dynamic>.from(json['info_adicional'] ?? {}),
+      codigo: json['codigo'] ?? '',
+      carrera: json['nombre'] ?? json['carrera'] ?? '',
+      nombreCompleto: json['nombre_completo'] ?? json['nombre'] ?? '',
+      matchScore: (json['match_score'] ?? 0.0).toDouble(),
+      matchScorePorcentaje: json['match_score_porcentaje'] ?? '0%',
+      categoria: json['categoria'] ?? '',
+      rama: json['rama'],
+      explicacion: json['explicacion_personalizada'] ?? json['explicacion'] ?? 'Sin explicación disponible',
+      explicacionPersonalizada: json['explicacion_personalizada'] ?? 'Sin explicación personalizada disponible',
+      explicacionGenerada: json['explicacion_generada'] ?? false,
+      infoBasica: json['info_basica'] ?? {},
+      mercadoLaboral: json['mercado_laboral'] ?? {},
+      fortalezas: List<String>.from(json['ventajas'] ?? json['fortalezas'] ?? []),
+      consideraciones: List<String>.from(json['desafios'] ?? json['consideraciones'] ?? []),
+      infoAdicional: _buildInfoAdicional(json),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'carrera': carrera,
-      'match_score': matchScore,
       'ranking': ranking,
+      'codigo': codigo,
+      'nombre': carrera,
+      'nombre_completo': nombreCompleto,
+      'match_score': matchScore,
+      'match_score_porcentaje': matchScorePorcentaje,
+      'categoria': categoria,
+      'rama': rama,
       'explicacion': explicacion,
-      'fortalezas': fortalezas,
-      'consideraciones': consideraciones,
-      'info_adicional': infoAdicional,
+      'explicacion_personalizada': explicacionPersonalizada,
+      'explicacion_generada': explicacionGenerada,
+      'info_basica': infoBasica,
+      'mercado_laboral': mercadoLaboral,
+      'ventajas': fortalezas,
+      'desafios': consideraciones,
+    };
+  }
+
+  static Map<String, dynamic> _buildInfoAdicional(Map<String, dynamic> json) {
+    final infoBasica = json['info_basica'] ?? {};
+    final mercado = json['mercado_laboral'] ?? {};
+    
+    return {
+      'area': json['rama'] ?? json['categoria'] ?? 'N/A',
+      'duracion_años': infoBasica['años_estudio'] ?? infoBasica['anos_estudio'] ?? 'N/A',
+      'dificultad': infoBasica['dificultad'] ?? 'N/A',
+      'salario_promedio_mxn': infoBasica['salario_promedio'] ?? mercado['salario_promedio'] ?? 0,
+      'nivel_educativo': infoBasica['nivel_educativo'] ?? 'N/A',
+      'demanda_laboral': mercado['demanda'] ?? 'N/A',
+      'crecimiento': mercado['crecimiento'] ?? 'N/A',
+      'oportunidades': mercado['oportunidades'] ?? [],
     };
   }
 }
 
 class QuestionnaireResults {
   final String sessionId;
-  final DateTime fechaEvaluacion;
-  final String? resumenEjecutivo;
   final List<CareerRecommendation> recomendaciones;
+  final String? resumenEjecutivo;
+  final String? mensajeMotivacional;
+  final double capacidadAcademica;
+  final String categoria;
+  final String? ramaUniversitaria;
+  final DateTime fechaEvaluacion;
   final Map<String, dynamic> metadata;
 
   QuestionnaireResults({
     required this.sessionId,
-    required this.fechaEvaluacion,
-    this.resumenEjecutivo,
     required this.recomendaciones,
+    this.resumenEjecutivo,
+    this.mensajeMotivacional,
+    required this.capacidadAcademica,
+    required this.categoria,
+    this.ramaUniversitaria,
+    required this.fechaEvaluacion,
     required this.metadata,
   });
 
   factory QuestionnaireResults.fromJson(Map<String, dynamic> json) {
     return QuestionnaireResults(
-      sessionId: json['session_id'] ?? '',
-      fechaEvaluacion: DateTime.parse(json['fecha_evaluacion']),
+      sessionId: json['session_metadata']?['session_id'] ?? json['session_id'] ?? '',
+      recomendaciones: (json['recomendaciones'] as List<dynamic>?)
+              ?.map((item) => CareerRecommendation.fromJson(item))
+              .toList() ??
+          [],
       resumenEjecutivo: json['resumen_ejecutivo'],
-      recomendaciones: (json['recomendaciones'] as List)
-          .map((r) => CareerRecommendation.fromJson(r))
-          .toList(),
-      metadata: Map<String, dynamic>.from(json['metadata'] ?? {}),
+      mensajeMotivacional: json['mensaje_motivacional'],
+      capacidadAcademica: (json['capacidad_academica']?['score'] ?? 0.0).toDouble(),
+      categoria: json['capacidad_academica']?['categoria'] ?? 'N/A',
+      ramaUniversitaria: json['rama_universitaria'],
+      fechaEvaluacion: DateTime.tryParse(json['fecha_evaluacion'] ?? '') ?? DateTime.now(),
+      metadata: json['metadata'] ?? {},
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'session_id': sessionId,
-      'fecha_evaluacion': fechaEvaluacion.toIso8601String(),
-      'resumen_ejecutivo': resumenEjecutivo,
       'recomendaciones': recomendaciones.map((r) => r.toJson()).toList(),
+      'resumen_ejecutivo': resumenEjecutivo,
+      'mensaje_motivacional': mensajeMotivacional,
+      'capacidad_academica': {
+        'score': capacidadAcademica,
+        'categoria': categoria,
+      },
+      'rama_universitaria': ramaUniversitaria,
+      'fecha_evaluacion': fechaEvaluacion.toIso8601String(),
+      'metadata': metadata,
+    };
+  }
+}
+
+enum QuestionnaireStatus {
+  idle,
+  loading,
+  active,
+  completed,
+  error,
+}
+
+class Question {
+  final String id;
+  final String pregunta;
+  final List<String> opciones;
+  final Map<String, dynamic>? metadata;
+
+  Question({
+    required this.id,
+    required this.pregunta,
+    required this.opciones,
+    this.metadata,
+  });
+
+  factory Question.fromJson(Map<String, dynamic> json) {
+    return Question(
+      id: json['id'] ?? '',
+      pregunta: json['pregunta'] ?? '',
+      opciones: List<String>.from(json['opciones'] ?? []),
+      metadata: json['metadata'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'pregunta': pregunta,
+      'opciones': opciones,
       'metadata': metadata,
     };
   }

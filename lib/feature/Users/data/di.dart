@@ -117,16 +117,17 @@ Future<void> initializeDependencies() async {
   // PROVIDERS
   // ============================================
 
-  sl.registerFactory(
-    () => AuthProvider(
-      loginUseCase: sl(),
-      registerAdultUseCase: sl(),
-      registerTutorUseCase: sl(),
-      registerMinorUseCase: sl(),
-      logoutUseCase: sl(),
-      getCurrentUserUseCase: sl(),
-    ),
-  );
+sl.registerFactory(
+  () => AuthProvider(
+    loginUseCase: sl(),
+    registerAdultUseCase: sl(),
+    registerTutorUseCase: sl(),
+    registerMinorUseCase: sl(),
+    logoutUseCase: sl(),
+    getCurrentUserUseCase: sl(),
+    authLocalDataSource: sl(), // ← NUEVO: Agregar esta línea
+  ),
+);
 
   sl.registerFactory(() => EvaluationProvider());
   sl.registerFactory(() => CareerProvider());

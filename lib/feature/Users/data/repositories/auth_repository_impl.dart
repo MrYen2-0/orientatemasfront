@@ -25,12 +25,18 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     if (await networkInfo.isConnected) {
       try {
-        final user = await remoteDataSource.login(
+        // ← CAMBIO: Ahora recibimos Map con user y token
+        final result = await remoteDataSource.login(
           email: email,
           password: password,
         );
         
+        final user = result['user'] as User;
+        final token = result['token'] as String;
+        
         await localDataSource.cacheUser(user);
+        await localDataSource.cacheToken(token); // ← NUEVO: Guardar token
+        
         return Right(user);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message ?? 'Error del servidor'));
@@ -69,7 +75,8 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     if (await networkInfo.isConnected) {
       try {
-        final user = await remoteDataSource.registerAdult(
+        // ← CAMBIO: Ahora recibimos Map con user y token
+        final result = await remoteDataSource.registerAdult(
           email: email,
           password: password,
           name: name,
@@ -77,7 +84,12 @@ class AuthRepositoryImpl implements AuthRepository {
           state: state,
         );
         
+        final user = result['user'] as User;
+        final token = result['token'] as String;
+        
         await localDataSource.cacheUser(user);
+        await localDataSource.cacheToken(token); // ← NUEVO: Guardar token
+        
         return Right(user);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message ?? 'Error al registrar usuario'));
@@ -105,8 +117,10 @@ class AuthRepositoryImpl implements AuthRepository {
           phone: phone,
         );
         
+        // NO guardamos el token del tutor en cache global
+        // Solo lo retornamos para uso temporal
         await localDataSource.cacheUser(result['tutor']);
-        await localDataSource.cacheToken(result['token']);
+        
         return Right(result);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message ?? 'Error al registrar tutor'));
@@ -140,6 +154,8 @@ class AuthRepositoryImpl implements AuthRepository {
           relationship: relationship,
         );
         
+        await localDataSource.cacheUser(user);
+        
         return Right(user);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message ?? 'Error al registrar menor'));
@@ -156,7 +172,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await remoteDataSource.logout();
       await localDataSource.clearCache();
-      await localDataSource.clearToken();
+      await localDataSource.clearToken(); // ← Limpiar token también
       return const Right(null);
     } catch (e) {
       return Left(CacheFailure('Error al cerrar sesión'));

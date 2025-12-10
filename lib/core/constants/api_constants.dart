@@ -1,38 +1,30 @@
 class ApiConstants {
-  // URL del API Gateway (NO del servicio ML directamente)
-  static const String baseUrl = 'http://192.168.1.96:4000';
+  static const String baseUrl = 'http://192.168.0.4:4000';
 
-  // Endpoints del Gateway (ya incluyen el prefijo correcto)
   static const String habitsEndpoint = baseUrl;
 
-  // Auth endpoints (Gateway espera /auth, NO /api/auth)
-  static const String loginEndpoint = '$baseUrl/auth/login'; // ← Quitar /api/
-  static const String registerAdultEndpoint =
-      '$baseUrl/auth/register/adult'; // ← Quitar /api/
-  static const String registerTutorEndpoint =
-      '$baseUrl/auth/register/tutor'; // ← Quitar /api/
+  static const String loginEndpoint = '$baseUrl/api/auth/login';
+  static const String registerAdultEndpoint = '$baseUrl/api/auth/register/student/adult';
+  static const String registerTutorEndpoint = '$baseUrl/api/auth/register/tutor';
+  static const String registerMinorEndpoint = '$baseUrl/api/auth/register/student/minor';
 
-  // ML Service endpoints (prefijo /api se agrega automáticamente por el gateway)
-  static const String sessionStartEndpoint = '$baseUrl/api/session/start';
-  static const String healthCheckEndpoint = '$baseUrl/health';
+  static const String sessionStartEndpoint = '$baseUrl/api/questionnaire/session/start';
+  static const String healthCheckEndpoint = '$baseUrl/api/health';
+  static const String questionnaireHealthEndpoint = '$baseUrl/api/questionnaire/health';
   static const String systemStatsEndpoint = '$baseUrl/api/system/stats';
-  static const String demoEndpoint = '$baseUrl/api/demo';
+  static const String demoEndpoint = '$baseUrl/api/questionnaire/demo';
 
-  // Timeouts
   static const Duration connectTimeout = Duration(seconds: 10);
   static const Duration receiveTimeout = Duration(seconds: 30);
   static const Duration sendTimeout = Duration(seconds: 30);
 
-  // Headers comunes
   static const Map<String, String> defaultHeaders = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   };
 
-  // Getter para compatibilidad con servicios existentes
   static Map<String, String> get headers => defaultHeaders;
 
-  // Configuración de red
   static const bool enableDebugLogging = true;
   static const int maxRetries = 3;
   static const Duration retryDelay = Duration(seconds: 2);

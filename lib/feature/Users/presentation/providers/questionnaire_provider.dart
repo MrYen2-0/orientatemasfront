@@ -116,7 +116,7 @@ class QuestionnaireProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       _status = QuestionnaireStatus.error;
-      _errorMessage = 'Error al restaurar sesión: $e';
+      _errorMessage = 'Error al restaurar sesion: $e';
       notifyListeners();
       return false;
     }
@@ -130,7 +130,7 @@ class QuestionnaireProvider extends ChangeNotifier {
       final session = await _localStorage.getSession(sessionId);
 
       if (session == null) {
-        throw Exception('Sesión no encontrada');
+        throw Exception('Sesion no encontrada');
       }
 
       _currentSession = session;
@@ -144,142 +144,157 @@ class QuestionnaireProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       _status = QuestionnaireStatus.error;
-      _errorMessage = 'Error al cargar sesión: $e';
+      _errorMessage = 'Error al cargar sesion: $e';
       notifyListeners();
       return false;
     }
   }
 
-  Future<void> _loadNextQuestion() async {
-    if (_currentSession == null) return;
+Future<void> _loadNextQuestion() async {
+  if (_currentSession == null) return;
 
-    try {
-      final url =
-          '${ApiConstants.baseUrl}/api/questionnaire/session/${_currentSession!.sessionId}/next-question';
+  try {
+    final url = ApiConstants.getSessionNextQuestionUrl(_currentSession!.sessionId);
 
-      final response = await http.get(Uri.parse(url), headers: _getHeaders());
+    final response = await http.get(Uri.parse(url), headers: _getHeaders());
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
 
-        if (data['session_status'] == 'ready_to_finish' &&
-            data['pregunta'] == null) {
-          _currentQuestion = null;
-          await _completeQuestionnaire();
-        } else {
-          _currentQuestion = data;
-        }
+      if (data['session_status'] == 'ready_to_finish' &&
+          data['pregunta'] == null) {
+        _currentQuestion = null;
+        await _completeQuestionnaire();
       } else {
-        throw Exception(
-          'Error al cargar pregunta: ${response.statusCode} - ${response.body}',
-        );
+        _currentQuestion = data;
       }
-    } catch (e) {
-      _errorMessage = 'Error al cargar pregunta: $e';
-      rethrow;
+    } else {
+      throw Exception(
+        'Error al cargar pregunta: ${response.statusCode} - ${response.body}',
+      );
     }
+  } catch (e) {
+    _errorMessage = 'Error al cargar pregunta: $e';
+    rethrow;
+  }
+}
+
+Future<bool> submitAnswer(String preguntaId, String respuesta) async {
+  if (_currentSession == null) {
+    _errorMessage = 'No hay sesion activa';
+    return false;
   }
 
-  Future<bool> submitAnswer(String preguntaId, String respuesta) async {
-    if (_currentSession == null) {
-      _errorMessage = 'No hay sesión activa';
-      return false;
-    }
+  try {
+    _status = QuestionnaireStatus.loading;
+    notifyListeners();
 
-    try {
-      _status = QuestionnaireStatus.loading;
-      notifyListeners();
+    final url = ApiConstants.getSessionAnswerUrl(_currentSession!.sessionId);
 
-      final url =
-          '${ApiConstants.baseUrl}/api/questionnaire/session/${_currentSession!.sessionId}/answer';
+    final response = await http.post(
+      Uri.parse(url),
+      headers: _getHeaders(),
+      body: jsonEncode({'pregunta_id': preguntaId, 'respuesta': respuesta}),
+    );
 
-      final response = await http.post(
-        Uri.parse(url),
-        headers: _getHeaders(),
-        body: jsonEncode({'pregunta_id': preguntaId, 'respuesta': respuesta}),
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      final preguntaTexto = _currentQuestion?['pregunta']?['texto'] ?? '';
+
+      _currentSession = _currentSession!.copyWith(
+        respuestas: {..._currentSession!.respuestas, preguntaId: respuesta},
+        preguntasRespondidas: [
+          ..._currentSession!.preguntasRespondidas,
+          QuestionResponse(
+            preguntaId: preguntaId,
+            preguntaTexto: preguntaTexto,
+            respuesta: respuesta,
+            timestamp: DateTime.now(),
+          ),
+        ],
+        estado: data['debe_continuar'] == false
+            ? 'listo_para_finalizar'
+            : 'en_progreso',
       );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        final preguntaTexto = _currentQuestion?['pregunta']?['texto'] ?? '';
-
-        _currentSession = _currentSession!.copyWith(
-          respuestas: {..._currentSession!.respuestas, preguntaId: respuesta},
-          preguntasRespondidas: [
-            ..._currentSession!.preguntasRespondidas,
-            QuestionResponse(
-              preguntaId: preguntaId,
-              preguntaTexto: preguntaTexto,
-              respuesta: respuesta,
-              timestamp: DateTime.now(),
-            ),
-          ],
-          estado: data['debe_continuar'] == false
-              ? 'listo_para_finalizar'
-              : 'en_progreso',
-        );
-
-        if (_autoSaveEnabled) {
-          await _localStorage.saveSession(_currentSession!);
-        }
-
-        if (data['debe_continuar'] == false &&
-            data['puede_finalizar'] == true) {
-          await _completeQuestionnaire();
-        } else {
-          await _loadNextQuestion();
-        }
-
-        _status = QuestionnaireStatus.loaded;
-        notifyListeners();
-        return true;
-      } else {
-        throw Exception(
-          'Error al enviar respuesta: ${response.statusCode} - ${response.body}',
-        );
-      }
-    } catch (e) {
-      _status = QuestionnaireStatus.error;
-      _errorMessage = 'Error al enviar respuesta: $e';
-      notifyListeners();
-      return false;
-    }
-  }
-
-  Future<void> _completeQuestionnaire() async {
-    if (_currentSession == null) return;
-
-    try {
-      final url =
-          '${ApiConstants.baseUrl}/api/questionnaire/session/${_currentSession!.sessionId}/prediction';
-
-      final response = await http.get(Uri.parse(url), headers: _getHeaders());
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        _results = QuestionnaireResults.fromJson(data['reporte_completo']);
-
-        _currentSession = _currentSession!.copyWith(
-          estado: 'completado',
-          timestampFin: DateTime.now(),
-        );
-
+      if (_autoSaveEnabled) {
         await _localStorage.saveSession(_currentSession!);
-        await _localStorage.saveResults(_results!);
-
-        _status = QuestionnaireStatus.completed;
-        notifyListeners();
-      } else {
-        throw Exception(
-          'Error al obtener resultados: ${response.statusCode} - ${response.body}',
-        );
       }
-    } catch (e) {
-      _errorMessage = 'Error al completar cuestionario: $e';
-      rethrow;
+
+      if (data['debe_continuar'] == false &&
+          data['puede_finalizar'] == true) {
+        await _completeQuestionnaire();
+      } else {
+        await _loadNextQuestion();
+      }
+
+      _status = QuestionnaireStatus.loaded;
+      notifyListeners();
+      return true;
+    } else {
+      throw Exception(
+        'Error al enviar respuesta: ${response.statusCode} - ${response.body}',
+      );
     }
+  } catch (e) {
+    _status = QuestionnaireStatus.error;
+    _errorMessage = 'Error al enviar respuesta: $e';
+    notifyListeners();
+    return false;
   }
+}
+
+Future<void> _completeQuestionnaire() async {
+  if (_currentSession == null) return;
+
+  try {
+    final url = ApiConstants.getSessionFinishUrl(_currentSession!.sessionId);
+
+    final response = await http.post(
+      Uri.parse(url),
+      headers: _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      
+      final resultsData = {
+        'session_id': data['session_id'],
+        'capacidad_academica': data['capacidad_academica'],
+        'rama_universitaria': data['rama_universitaria'],
+        'recomendaciones': data['top_3_recomendaciones'],
+        'resumen_ejecutivo': data['resumen_ejecutivo'],
+        'mensaje_motivacional': data['mensaje_motivacional'],
+        'total_respuestas': data['total_respuestas'],
+        'fecha_evaluacion': data['timestamp'],
+        'metadata': {
+          'llm_disponible': data['llm_disponible'],
+        },
+      };
+      
+      _results = QuestionnaireResults.fromJson(resultsData);
+
+      _currentSession = _currentSession!.copyWith(
+        estado: 'completado',
+        timestampFin: DateTime.now(),
+      );
+
+      await _localStorage.saveSession(_currentSession!);
+      await _localStorage.saveResults(_results!);
+
+      _status = QuestionnaireStatus.completed;
+      notifyListeners();
+    } else {
+      throw Exception(
+        'Error al obtener resultados: ${response.statusCode} - ${response.body}',
+      );
+    }
+  } catch (e) {
+    _errorMessage = 'Error al completar cuestionario: $e';
+    rethrow;
+  }
+}
 
   Future<bool> loadResults(String sessionId) async {
     try {
@@ -290,24 +305,6 @@ class QuestionnaireProvider extends ChangeNotifier {
 
       if (localResults != null) {
         _results = localResults;
-        _status = QuestionnaireStatus.completed;
-        notifyListeners();
-        return true;
-      }
-
-      final response = await http.get(
-        Uri.parse(
-          '${ApiConstants.baseUrl}/api/questionnaire/session/$sessionId/prediction',
-        ),
-        headers: _getHeaders(),
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        _results = QuestionnaireResults.fromJson(data['reporte_completo']);
-
-        await _localStorage.saveResults(_results!);
-
         _status = QuestionnaireStatus.completed;
         notifyListeners();
         return true;

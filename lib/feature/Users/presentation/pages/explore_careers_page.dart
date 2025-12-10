@@ -15,78 +15,430 @@ class _ExploreCareersPageState extends State<ExploreCareersPage> {
 
   final List<String> _categories = [
     'Todas',
-    'Ingenierías',
     'Salud',
-    'Tecnología',
+    'Ingenieria',
     'Negocios',
-    'Artes',
+    'Oficios Tecnicos',
   ];
 
   final List<CareerItem> _popularCareers = [
     CareerItem(
-      name: 'Ingeniería en Sistemas Computacionales',
-      category: 'Tecnología',
-      description: 'Diseña, desarrolla y mantiene sistemas de software para resolver problemas complejos',
-      demand: 'Muy Alta',
-      salary: '\$18,000 - \$35,000 MXN',
-      duration: '4-5 años',
+      id: '6',
+      codigo: 'SW',
+      name: 'Ingeniería en Software',
+      nombreCompleto: 'Ingeniero en Software',
+      category: 'Ingenieria',
+      tipo: 'carrera_universitaria',
+      nivelEducativo: 'Licenciatura',
+      capacidadRequerida: 1.5,
+      aosEstudio: 4,
+      aosEspecialidad: 0,
+      costoAproximado: 450000,
+      dificultad: 8,
+      description: 'Diseño, desarrollo y mantenimiento de sistemas de software para resolver problemas complejos mediante tecnología.',
+      salario: SalarioInfo(
+        inicial: 25000,
+        promedio: 45000,
+        experimentado: 70000,
+        especialista: 120000,
+        nota: 'Uno de los campos mejor pagados, especialmente en tecnológicas internacionales',
+      ),
+      mercadoLaboral: MercadoLaboralInfo(
+        demanda: 'Muy Alta',
+        crecimientoProyectado: '35%',
+        empleabilidad: '98%',
+        tiempoEncontrarTrabajo: '1-3 meses',
+        sectoresPrincipales: ['Tecnología', 'Fintech', 'Startups', 'Empresas multinacionales'],
+      ),
+      requisitosIngreso: RequisitosIngresoInfo(
+        promedioMinimo: '8.5',
+        examenAdmision: 'CENEVAL-EXANI II',
+        materiasClave: ['Matemáticas', 'Física', 'Lógica'],
+        cursoPropedeutico: 'Recomendado',
+      ),
+      universidadesDestacadas: [
+        UniversidadInfo(
+          nombre: 'Tecnológico de Monterrey',
+          tipo: 'privada',
+          prestigio: 10,
+          costoSemestral: 180000,
+        ),
+        UniversidadInfo(
+          nombre: 'UNAM - Facultad de Ingeniería',
+          tipo: 'pública',
+          prestigio: 9,
+          costoSemestral: 500,
+        ),
+        UniversidadInfo(
+          nombre: 'IPN - ESCOM',
+          tipo: 'pública',
+          prestigio: 9,
+          costoSemestral: 600,
+        ),
+      ],
+      especializaciones: [
+        'Desarrollo Web', 'Inteligencia Artificial', 'Ciberseguridad',
+        'Desarrollo Mobile', 'DevOps', 'Data Science', 'Blockchain'
+      ],
+      competenciasRequeridas: [
+        'Pensamiento lógico-matemático',
+        'Capacidad de resolución de problemas',
+        'Aprendizaje autodidacta',
+        'Trabajo en equipo',
+        'Adaptabilidad tecnológica'
+      ],
+      ventajas: [
+        'Salarios muy competitivos',
+        'Trabajo remoto disponible',
+        'Campo en crecimiento acelerado',
+        'Oportunidades internacionales',
+        'Innovación constante'
+      ],
+      desafios: [
+        'Actualización tecnológica constante',
+        'Presión por entregas',
+        'Trabajo sedentario',
+        'Competencia globalizada'
+      ],
       popularityRank: 1,
       icon: Icons.computer,
       color: AppColors.primary600,
-      skills: ['Programación', 'Lógica', 'Resolución de problemas'],
-      jobOpportunities: '95% de empleabilidad',
     ),
     CareerItem(
-      name: 'Medicina General',
+      id: '1',
+      codigo: 'MED',
+      name: 'Medicina',
+      nombreCompleto: 'Médico Cirujano',
       category: 'Salud',
-      description: 'Diagnostica, trata y previene enfermedades para mejorar la salud y bienestar',
-      demand: 'Muy Alta',
-      salary: '\$20,000 - \$50,000 MXN',
-      duration: '6 años + especialidad',
+      tipo: 'carrera_universitaria',
+      nivelEducativo: 'Licenciatura + Especialidad',
+      capacidadRequerida: 1.7,
+      aosEstudio: 6,
+      aosEspecialidad: 4,
+      costoAproximado: 800000,
+      dificultad: 9,
+      description: 'Formación para diagnosticar, tratar y prevenir enfermedades, contribuyendo a la salud y bienestar de las personas.',
+      salario: SalarioInfo(
+        inicial: 25000,
+        promedio: 45000,
+        experimentado: 80000,
+        especialista: 150000,
+        nota: 'Varía significativamente por especialidad y sector (público vs privado)',
+      ),
+      mercadoLaboral: MercadoLaboralInfo(
+        demanda: 'Alta',
+        crecimientoProyectado: '15%',
+        empleabilidad: '95%',
+        tiempoEncontrarTrabajo: '6-12 meses',
+        sectoresPrincipales: ['Salud pública', 'Hospitales privados', 'Consulta privada', 'Investigación'],
+      ),
+      requisitosIngreso: RequisitosIngresoInfo(
+        promedioMinimo: '9.0',
+        examenAdmision: 'CENEVAL-EXANI II',
+        materiasClave: ['Biología', 'Química', 'Matemáticas', 'Física'],
+        cursoPropedeutico: 'Requerido en la mayoría',
+      ),
+      universidadesDestacadas: [
+        UniversidadInfo(
+          nombre: 'UNAM - Facultad de Medicina',
+          tipo: 'pública',
+          prestigio: 10,
+          costoSemestral: 500,
+        ),
+        UniversidadInfo(
+          nombre: 'IPN - Escuela Superior de Medicina',
+          tipo: 'pública',
+          prestigio: 9,
+          costoSemestral: 600,
+        ),
+        UniversidadInfo(
+          nombre: 'Universidad Panamericana',
+          tipo: 'privada',
+          prestigio: 8,
+          costoSemestral: 120000,
+        ),
+        UniversidadInfo(
+          nombre: 'Tecnológico de Monterrey',
+          tipo: 'privada',
+          prestigio: 9,
+          costoSemestral: 180000,
+        ),
+      ],
+      especializaciones: [
+        'Medicina Interna', 'Pediatría', 'Ginecología', 'Cirugía General', 
+        'Cardiología', 'Neurología', 'Psiquiatría', 'Medicina Familiar'
+      ],
+      competenciasRequeridas: [
+        'Conocimiento científico sólido',
+        'Habilidades de comunicación',
+        'Capacidad de trabajo bajo presión',
+        'Empatía y sensibilidad social',
+        'Pensamiento crítico',
+        'Resistencia física y mental'
+      ],
+      ventajas: [
+        'Alto prestigio social',
+        'Posibilidad de salvar vidas',
+        'Ingresos altos (especialistas)',
+        'Múltiples oportunidades de especialización',
+        'Demanda laboral constante'
+      ],
+      desafios: [
+        'Carrera muy larga (10+ años)',
+        'Alta exigencia académica',
+        'Responsabilidad y estrés elevados',
+        'Horarios irregulares',
+        'Inversión económica considerable'
+      ],
       popularityRank: 2,
       icon: Icons.medical_services,
       color: AppColors.error600,
-      skills: ['Empatía', 'Conocimiento científico', 'Trabajo bajo presión'],
-      jobOpportunities: '98% de empleabilidad',
     ),
     CareerItem(
-      name: 'Administración de Empresas',
-      category: 'Negocios',
-      description: 'Gestiona recursos organizacionales para alcanzar objetivos empresariales',
-      demand: 'Alta',
-      salary: '\$12,000 - \$30,000 MXN',
-      duration: '4 años',
+      id: '2',
+      codigo: 'PSI',
+      name: 'Psicología',
+      nombreCompleto: 'Licenciado en Psicología',
+      category: 'Salud',
+      tipo: 'carrera_universitaria',
+      nivelEducativo: 'Licenciatura',
+      capacidadRequerida: 1.3,
+      aosEstudio: 4,
+      aosEspecialidad: 2,
+      costoAproximado: 400000,
+      dificultad: 7,
+      description: 'Estudio del comportamiento humano y procesos mentales para promover el bienestar psicológico.',
+      salario: SalarioInfo(
+        inicial: 15000,
+        promedio: 25000,
+        experimentado: 40000,
+        especialista: 60000,
+        nota: 'Consultorio privado puede generar ingresos variables pero potencialmente altos',
+      ),
+      mercadoLaboral: MercadoLaboralInfo(
+        demanda: 'Alta',
+        crecimientoProyectado: '20%',
+        empleabilidad: '85%',
+        tiempoEncontrarTrabajo: '3-6 meses',
+        sectoresPrincipales: ['Salud mental', 'Educación', 'Recursos humanos', 'Consulta privada'],
+      ),
+      requisitosIngreso: RequisitosIngresoInfo(
+        promedioMinimo: '8.0',
+        examenAdmision: 'Examen institucional',
+        materiasClave: ['Biología', 'Filosofía', 'Ciencias Sociales'],
+        cursoPropedeutico: 'En algunas universidades',
+      ),
+      universidadesDestacadas: [
+        UniversidadInfo(
+          nombre: 'UNAM - Facultad de Psicología',
+          tipo: 'pública',
+          prestigio: 10,
+          costoSemestral: 500,
+        ),
+        UniversidadInfo(
+          nombre: 'Universidad Iberoamericana',
+          tipo: 'privada',
+          prestigio: 9,
+          costoSemestral: 85000,
+        ),
+        UniversidadInfo(
+          nombre: 'Universidad Anáhuac',
+          tipo: 'privada',
+          prestigio: 8,
+          costoSemestral: 75000,
+        ),
+      ],
+      especializaciones: [
+        'Psicología Clínica', 'Psicología Educativa', 'Psicología Organizacional',
+        'Neuropsicología', 'Psicología Social', 'Terapia Familiar'
+      ],
+      competenciasRequeridas: [
+        'Excelentes habilidades de comunicación',
+        'Empatía y sensibilidad',
+        'Capacidad de análisis',
+        'Estabilidad emocional',
+        'Ética profesional sólida'
+      ],
+      ventajas: [
+        'Campo laboral diverso',
+        'Posibilidad de consulta privada',
+        'Contribución al bienestar social',
+        'Flexibilidad de horarios',
+        'Crecimiento personal constante'
+      ],
+      desafios: [
+        'Salarios iniciales relativamente bajos',
+        'Carga emocional del trabajo',
+        'Competencia en el mercado',
+        'Necesidad de capacitación continua'
+      ],
       popularityRank: 3,
-      icon: Icons.business_center,
+      icon: Icons.psychology,
       color: AppColors.secondary600,
-      skills: ['Liderazgo', 'Toma de decisiones', 'Análisis'],
-      jobOpportunities: '88% de empleabilidad',
     ),
     CareerItem(
-      name: 'Ciencia de Datos',
-      category: 'Tecnología',
-      description: 'Analiza grandes volúmenes de datos para extraer insights y crear modelos predictivos',
-      demand: 'Muy Alta',
-      salary: '\$25,000 - \$60,000 MXN',
-      duration: '4 años',
+      id: '11',
+      codigo: 'ADM',
+      name: 'Administración',
+      nombreCompleto: 'Licenciado en Administración',
+      category: 'Negocios',
+      tipo: 'carrera_universitaria',
+      nivelEducativo: 'Licenciatura',
+      capacidadRequerida: 1.1,
+      aosEstudio: 4,
+      aosEspecialidad: 0,
+      costoAproximado: 320000,
+      dificultad: 5,
+      description: 'Gestión eficiente de recursos organizacionales para lograr objetivos empresariales y optimizar procesos.',
+      salario: SalarioInfo(
+        inicial: 14000,
+        promedio: 25000,
+        experimentado: 45000,
+        especialista: 80000,
+        nota: 'Altos ejecutivos y consultores pueden ganar significativamente más',
+      ),
+      mercadoLaboral: MercadoLaboralInfo(
+        demanda: 'Alta',
+        crecimientoProyectado: '15%',
+        empleabilidad: '85%',
+        tiempoEncontrarTrabajo: '3-5 meses',
+        sectoresPrincipales: ['Empresas privadas', 'Gobierno', 'Consultoría', 'Emprendimiento'],
+      ),
+      requisitosIngreso: RequisitosIngresoInfo(
+        promedioMinimo: '7.0',
+        examenAdmision: 'Examen institucional',
+        materiasClave: ['Matemáticas', 'Ciencias Sociales', 'Economía'],
+        cursoPropedeutico: 'Opcional',
+      ),
+      universidadesDestacadas: [
+        UniversidadInfo(
+          nombre: 'Tecnológico de Monterrey',
+          tipo: 'privada',
+          prestigio: 10,
+          costoSemestral: 180000,
+        ),
+        UniversidadInfo(
+          nombre: 'Universidad Iberoamericana',
+          tipo: 'privada',
+          prestigio: 9,
+          costoSemestral: 85000,
+        ),
+        UniversidadInfo(
+          nombre: 'UNAM - FCA',
+          tipo: 'pública',
+          prestigio: 8,
+          costoSemestral: 500,
+        ),
+      ],
+      especializaciones: [
+        'Recursos Humanos', 'Finanzas', 'Marketing', 'Operaciones',
+        'Estrategia', 'Emprendimiento', 'Administración Pública'
+      ],
+      competenciasRequeridas: [
+        'Liderazgo y gestión',
+        'Comunicación efectiva',
+        'Pensamiento analítico',
+        'Toma de decisiones',
+        'Trabajo en equipo'
+      ],
+      ventajas: [
+        'Campo laboral amplio',
+        'Versatilidad profesional',
+        'Oportunidades de crecimiento',
+        'Base para emprendimiento',
+        'Networking extenso'
+      ],
+      desafios: [
+        'Mercado saturado',
+        'Competencia intensa',
+        'Necesidad de especialización',
+        'Presión por resultados'
+      ],
       popularityRank: 4,
-      icon: Icons.analytics,
+      icon: Icons.business_center,
       color: AppColors.accent600,
-      skills: ['Estadística', 'Programación', 'Machine Learning'],
-      jobOpportunities: '96% de empleabilidad',
     ),
     CareerItem(
-      name: 'Ingeniería Industrial',
-      category: 'Ingenierías',
-      description: 'Optimiza procesos productivos y gestiona sistemas industriales complejos',
-      demand: 'Alta',
-      salary: '\$15,000 - \$35,000 MXN',
-      duration: '4.5 años',
+      id: '16',
+      codigo: 'TEC_ENF',
+      name: 'Técnico en Enfermería',
+      nombreCompleto: 'Técnico Superior en Enfermería',
+      category: 'Oficios_Tecnicos',
+      tipo: 'carrera_tecnica',
+      nivelEducativo: 'Técnico Superior',
+      capacidadRequerida: 0.7,
+      aosEstudio: 3,
+      aosEspecialidad: 0,
+      costoAproximado: 120000,
+      dificultad: 5,
+      description: 'Asistencia en el cuidado de pacientes bajo supervisión médica en hospitales, clínicas y centros de salud.',
+      salario: SalarioInfo(
+        inicial: 12000,
+        promedio: 18000,
+        experimentado: 25000,
+        especialista: 32000,
+        nota: 'Sector privado y guardias nocturnas incrementan ingresos',
+      ),
+      mercadoLaboral: MercadoLaboralInfo(
+        demanda: 'Muy Alta',
+        crecimientoProyectado: '25%',
+        empleabilidad: '95%',
+        tiempoEncontrarTrabajo: '1-2 meses',
+        sectoresPrincipales: ['Hospitales', 'Clínicas', 'Casas de reposo', 'Atención domiciliaria'],
+      ),
+      requisitosIngreso: RequisitosIngresoInfo(
+        promedioMinimo: '7.0',
+        examenAdmision: 'Examen básico',
+        materiasClave: ['Biología', 'Química'],
+        cursoPropedeutico: 'Básico',
+      ),
+      universidadesDestacadas: [
+        UniversidadInfo(
+          nombre: 'CONALEP',
+          tipo: 'pública',
+          prestigio: 8,
+          costoSemestral: 800,
+        ),
+        UniversidadInfo(
+          nombre: 'CECATI',
+          tipo: 'pública',
+          prestigio: 7,
+          costoSemestral: 500,
+        ),
+        UniversidadInfo(
+          nombre: 'Instituto Mexicano del Seguro Social (IMSS)',
+          tipo: 'pública',
+          prestigio: 9,
+          costoSemestral: 0,
+        ),
+      ],
+      especializaciones: [
+        'Cuidados Intensivos', 'Pediatría', 'Geriatría',
+        'Quirófano', 'Urgencias', 'Rehabilitación'
+      ],
+      competenciasRequeridas: [
+        'Vocación de servicio',
+        'Resistencia física',
+        'Habilidades de comunicación',
+        'Trabajo en equipo',
+        'Manejo del estrés'
+      ],
+      ventajas: [
+        'Inserción laboral inmediata',
+        'Demanda constante',
+        'Trabajo humanitario significativo',
+        'Horarios de guardia bien pagados',
+        'Posibilidad de continuar estudios'
+      ],
+      desafios: [
+        'Trabajo físicamente demandante',
+        'Exposición a enfermedades',
+        'Horarios rotativos',
+        'Responsabilidad sobre vidas humanas'
+      ],
       popularityRank: 5,
-      icon: Icons.factory,
+      icon: Icons.health_and_safety,
       color: AppColors.gray700,
-      skills: ['Optimización', 'Gestión', 'Análisis de procesos'],
-      jobOpportunities: '90% de empleabilidad',
     ),
   ];
 
@@ -121,7 +473,6 @@ class _ExploreCareersPageState extends State<ExploreCareersPage> {
       ),
       body: Column(
         children: [
-          // Barra de búsqueda
           Container(
             color: AppColors.white,
             padding: const EdgeInsets.all(16),
@@ -139,8 +490,6 @@ class _ExploreCareersPageState extends State<ExploreCareersPage> {
               ),
             ),
           ),
-
-          // Filtros por categoría
           Container(
             height: 50,
             color: AppColors.white,
@@ -176,10 +525,7 @@ class _ExploreCareersPageState extends State<ExploreCareersPage> {
               },
             ),
           ),
-
           const SizedBox(height: 8),
-
-          // Lista de carreras
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
@@ -220,7 +566,6 @@ class _ExploreCareersPageState extends State<ExploreCareersPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header con icono y ranking
               Row(
                 children: [
                   Container(
@@ -305,10 +650,7 @@ class _ExploreCareersPageState extends State<ExploreCareersPage> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 12),
-
-              // Descripción
               Text(
                 career.description,
                 style: AppTextStyles.bodySmall.copyWith(
@@ -317,10 +659,7 @@ class _ExploreCareersPageState extends State<ExploreCareersPage> {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-
               const SizedBox(height: 16),
-
-              // Metadata
               Wrap(
                 spacing: 12,
                 runSpacing: 8,
@@ -342,10 +681,7 @@ class _ExploreCareersPageState extends State<ExploreCareersPage> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 12),
-
-              // Botón
               SizedBox(
                 width: double.infinity,
                 child: TextButton.icon(
@@ -413,7 +749,6 @@ class _ExploreCareersPageState extends State<ExploreCareersPage> {
             controller: controller,
             padding: const EdgeInsets.all(24),
             children: [
-              // Handle
               Center(
                 child: Container(
                   width: 40,
@@ -424,10 +759,7 @@ class _ExploreCareersPageState extends State<ExploreCareersPage> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 24),
-
-              // Icono grande
               Center(
                 child: Container(
                   width: 80,
@@ -443,19 +775,13 @@ class _ExploreCareersPageState extends State<ExploreCareersPage> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 16),
-
-              // Nombre
               Text(
-                career.name,
+                career.nombreCompleto,
                 style: AppTextStyles.h2,
                 textAlign: TextAlign.center,
               ),
-
               const SizedBox(height: 8),
-
-              // Categoría
               Center(
                 child: Container(
                   padding: const EdgeInsets.symmetric(
@@ -475,10 +801,7 @@ class _ExploreCareersPageState extends State<ExploreCareersPage> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 24),
-
-              // Descripción
               Text(
                 'Descripción',
                 style: AppTextStyles.h4,
@@ -491,29 +814,157 @@ class _ExploreCareersPageState extends State<ExploreCareersPage> {
                   height: 1.6,
                 ),
               ),
-
               const SizedBox(height: 24),
-
-              // Información clave
-              _buildDetailSection('Información Clave', [
-                _buildDetailRow('Duración', career.duration),
-                _buildDetailRow('Demanda Laboral', career.demand),
-                _buildDetailRow('Rango Salarial', career.salary),
-                _buildDetailRow('Empleabilidad', career.jobOpportunities),
+              _buildDetailSection('Información Académica', [
+                _buildDetailRow('Nivel Educativo', career.nivelEducativo),
+                _buildDetailRow('Duración', '${career.aosEstudio} años'),
+                _buildDetailRow('Dificultad', '${career.dificultad}/10'),
+                _buildDetailRow('Costo Aproximado', '\$${career.costoAproximado.toString()} MXN'),
+                _buildDetailRow('Capacidad Requerida', career.capacidadRequerida.toString()),
               ]),
-
               const SizedBox(height: 24),
-
-              // Habilidades requeridas
+              _buildDetailSection('Información Salarial', [
+                _buildDetailRow('Salario Inicial', '\$${career.salario.inicial.toString()} MXN'),
+                _buildDetailRow('Salario Promedio', '\$${career.salario.promedio.toString()} MXN'),
+                _buildDetailRow('Salario Experimentado', '\$${career.salario.experimentado.toString()} MXN'),
+                _buildDetailRow('Salario Especialista', '\$${career.salario.especialista.toString()} MXN'),
+                _buildDetailRow('Nota Salarial', career.salario.nota),
+              ]),
+              const SizedBox(height: 24),
+              _buildDetailSection('Mercado Laboral', [
+                _buildDetailRow('Demanda', career.mercadoLaboral.demanda),
+                _buildDetailRow('Crecimiento Proyectado', career.mercadoLaboral.crecimientoProyectado),
+                _buildDetailRow('Empleabilidad', career.mercadoLaboral.empleabilidad),
+                _buildDetailRow('Tiempo para Encontrar Trabajo', career.mercadoLaboral.tiempoEncontrarTrabajo),
+              ]),
+              const SizedBox(height: 24),
+              _buildDetailSection('Requisitos de Ingreso', [
+                _buildDetailRow('Promedio Mínimo', career.requisitosIngreso.promedioMinimo),
+                _buildDetailRow('Examen de Admisión', career.requisitosIngreso.examenAdmision),
+                _buildDetailRow('Materias Clave', career.requisitosIngreso.materiasClave.join(', ')),
+                _buildDetailRow('Curso Propedéutico', career.requisitosIngreso.cursoPropedeutico),
+              ]),
+              const SizedBox(height: 24),
               Text(
-                'Habilidades Requeridas',
+                'Universidades Destacadas',
+                style: AppTextStyles.h4,
+              ),
+              const SizedBox(height: 12),
+              ...career.universidadesDestacadas.map((uni) => Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.gray50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.gray200),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      uni.nombre,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Text(
+                          'Tipo: ${uni.tipo}',
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.gray600,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Text(
+                          'Prestigio: ${uni.prestigio}/10',
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.gray600,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Text(
+                          'Costo: \$${uni.costoSemestral}',
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.gray600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              )).toList(),
+              const SizedBox(height: 24),
+              Text(
+                'Sectores Principales',
                 style: AppTextStyles.h4,
               ),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: career.skills.map((skill) {
+                children: career.mercadoLaboral.sectoresPrincipales.map((sector) {
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.info50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.info700),
+                    ),
+                    child: Text(
+                      sector,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.info700,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Especializaciones',
+                style: AppTextStyles.h4,
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: career.especializaciones.map((spec) {
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.secondary50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.secondary700),
+                    ),
+                    child: Text(
+                      spec,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.secondary700,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Competencias Requeridas',
+                style: AppTextStyles.h4,
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: career.competenciasRequeridas.map((skill) {
                   return Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
@@ -534,17 +985,69 @@ class _ExploreCareersPageState extends State<ExploreCareersPage> {
                   );
                 }).toList(),
               ),
-
+              const SizedBox(height: 24),
+              Text(
+                'Ventajas',
+                style: AppTextStyles.h4,
+              ),
+              const SizedBox(height: 8),
+              ...career.ventajas.map((ventaja) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.check_circle,
+                      color: AppColors.success600,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        ventaja,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.gray700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )).toList(),
+              const SizedBox(height: 24),
+              Text(
+                'Desafíos',
+                style: AppTextStyles.h4,
+              ),
+              const SizedBox(height: 8),
+              ...career.desafios.map((desafio) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.warning,
+                      color: AppColors.warning600,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        desafio,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.gray700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )).toList(),
               const SizedBox(height: 32),
-
-              // Botón
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
                 child: const Text('Cerrar'),
               ),
-
               const SizedBox(height: 16),
             ],
           ),
@@ -598,31 +1101,122 @@ class _ExploreCareersPageState extends State<ExploreCareersPage> {
   }
 }
 
-// Modelo de Carrera
 class CareerItem {
+  final String id;
+  final String codigo;
   final String name;
+  final String nombreCompleto;
   final String category;
+  final String tipo;
+  final String nivelEducativo;
+  final double capacidadRequerida;
+  final int aosEstudio;
+  final int aosEspecialidad;
+  final int costoAproximado;
+  final int dificultad;
   final String description;
-  final String demand;
-  final String salary;
-  final String duration;
+  final SalarioInfo salario;
+  final MercadoLaboralInfo mercadoLaboral;
+  final RequisitosIngresoInfo requisitosIngreso;
+  final List<UniversidadInfo> universidadesDestacadas;
+  final List<String> especializaciones;
+  final List<String> competenciasRequeridas;
+  final List<String> ventajas;
+  final List<String> desafios;
   final int popularityRank;
   final IconData icon;
   final Color color;
-  final List<String> skills;
-  final String jobOpportunities;
 
   CareerItem({
+    required this.id,
+    required this.codigo,
     required this.name,
+    required this.nombreCompleto,
     required this.category,
+    required this.tipo,
+    required this.nivelEducativo,
+    required this.capacidadRequerida,
+    required this.aosEstudio,
+    required this.aosEspecialidad,
+    required this.costoAproximado,
+    required this.dificultad,
     required this.description,
-    required this.demand,
-    required this.salary,
-    required this.duration,
+    required this.salario,
+    required this.mercadoLaboral,
+    required this.requisitosIngreso,
+    required this.universidadesDestacadas,
+    required this.especializaciones,
+    required this.competenciasRequeridas,
+    required this.ventajas,
+    required this.desafios,
     required this.popularityRank,
     required this.icon,
     required this.color,
-    required this.skills,
-    required this.jobOpportunities,
+  });
+
+  String get demand => mercadoLaboral.demanda;
+  String get salary => '\$${salario.inicial.toString()} - \$${salario.experimentado.toString()} MXN';
+  String get duration => '$aosEstudio años';
+  String get jobOpportunities => '${mercadoLaboral.empleabilidad} de empleabilidad';
+  List<String> get skills => competenciasRequeridas.take(3).toList();
+}
+
+class SalarioInfo {
+  final int inicial;
+  final int promedio;
+  final int experimentado;
+  final int especialista;
+  final String nota;
+
+  SalarioInfo({
+    required this.inicial,
+    required this.promedio,
+    required this.experimentado,
+    required this.especialista,
+    required this.nota,
+  });
+}
+
+class MercadoLaboralInfo {
+  final String demanda;
+  final String crecimientoProyectado;
+  final String empleabilidad;
+  final String tiempoEncontrarTrabajo;
+  final List<String> sectoresPrincipales;
+
+  MercadoLaboralInfo({
+    required this.demanda,
+    required this.crecimientoProyectado,
+    required this.empleabilidad,
+    required this.tiempoEncontrarTrabajo,
+    required this.sectoresPrincipales,
+  });
+}
+
+class RequisitosIngresoInfo {
+  final String promedioMinimo;
+  final String examenAdmision;
+  final List<String> materiasClave;
+  final String cursoPropedeutico;
+
+  RequisitosIngresoInfo({
+    required this.promedioMinimo,
+    required this.examenAdmision,
+    required this.materiasClave,
+    required this.cursoPropedeutico,
+  });
+}
+
+class UniversidadInfo {
+  final String nombre;
+  final String tipo;
+  final int prestigio;
+  final int costoSemestral;
+
+  UniversidadInfo({
+    required this.nombre,
+    required this.tipo,
+    required this.prestigio,
+    required this.costoSemestral,
   });
 }

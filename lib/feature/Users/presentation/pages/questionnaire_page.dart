@@ -247,18 +247,6 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
           child: Column(
             children: [
               // Barra de progreso
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: porcentajeEstimado / 100.0,
-                  minHeight: 8,
-                  backgroundColor: const Color(0xFFE5E7EB), // gray200
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                    Color(0xFF2563EB), // primary600
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
               
               // Información del progreso centrada
               Row(

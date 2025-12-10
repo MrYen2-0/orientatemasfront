@@ -33,10 +33,10 @@ class QuestionnaireResultsPage extends StatelessWidget {
               children: [
                 _buildHeaderSection(context, results),
                 
-                if (results.resumenEjecutivo != null)
+                if (results.resumenEjecutivo != null && results.resumenEjecutivo!.isNotEmpty)
                   _buildResumenSection(context, results.resumenEjecutivo!),
                 
-                if (results.mensajeMotivacional != null)
+                if (results.mensajeMotivacional != null && results.mensajeMotivacional!.isNotEmpty)
                   _buildMotivationalSection(context, results.mensajeMotivacional!),
                 
                 _buildCapacidadSection(context, results),
@@ -308,7 +308,7 @@ class QuestionnaireResultsPage extends StatelessWidget {
                   ),
                 ],
               ),
-              if (results.ramaUniversitaria != null) ...[
+              if (results.ramaUniversitaria != null && results.ramaUniversitaria!.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Text(
                   'Rama Recomendada: ${results.ramaUniversitaria}',
@@ -338,7 +338,7 @@ class QuestionnaireResultsPage extends StatelessWidget {
                 ),
           ),
           const SizedBox(height: 16),
-          ...recomendaciones.take(3).map((rec) => _buildCareerCard(context, rec)),
+          ...recomendaciones.map((rec) => _buildCareerCard(context, rec)),
         ],
       ),
     );
@@ -396,7 +396,7 @@ class QuestionnaireResultsPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '${recomendacion.infoAdicional['area'] ?? 'N/A'}',
+                          _getArea(recomendacion),
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: theme.colorScheme.onPrimary.withOpacity(0.9),
                           ),
@@ -441,7 +441,7 @@ class QuestionnaireResultsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
 
-                  if (recomendacion.explicacionGenerada) 
+                  if (recomendacion.explicacionGenerada && recomendacion.explicacionPersonalizada.isNotEmpty) 
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -483,7 +483,7 @@ class QuestionnaireResultsPage extends StatelessWidget {
                         ],
                       ),
                     )
-                  else
+                  else if (recomendacion.explicacion.isNotEmpty)
                     Text(
                       recomendacion.explicacion,
                       style: theme.textTheme.bodyMedium?.copyWith(
@@ -502,17 +502,17 @@ class QuestionnaireResultsPage extends StatelessWidget {
                       _buildInfoChip(
                         context,
                         Icons.schedule,
-                        '${recomendacion.infoAdicional['duracion_años']} años',
+                        '${_getDuracion(recomendacion)} años',
                       ),
                       _buildInfoChip(
                         context,
                         Icons.trending_up,
-                        'Dificultad: ${recomendacion.infoAdicional['dificultad']}/10',
+                        'Dificultad: ${_getDificultad(recomendacion)}',
                       ),
                       _buildInfoChip(
                         context,
                         Icons.attach_money,
-                        '\$${_formatSalary(recomendacion.infoAdicional['salario_promedio_mxn'])}',
+                        '\$${_formatSalary(_getSalario(recomendacion))}',
                       ),
                     ],
                   ),
@@ -534,6 +534,30 @@ class QuestionnaireResultsPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _getArea(entities.CareerRecommendation rec) {
+    return rec.rama ?? rec.categoria ?? 'N/A';
+  }
+
+  dynamic _getDuracion(entities.CareerRecommendation rec) {
+    return rec.infoBasica['años_estudio'] ?? 
+           rec.infoBasica['anos_estudio'] ?? 
+           rec.infoAdicional['duracion_años'] ?? 
+           'N/A';
+  }
+
+  String _getDificultad(entities.CareerRecommendation rec) {
+    final dificultad = rec.infoBasica['dificultad'] ?? rec.infoAdicional['dificultad'];
+    if (dificultad == null) return 'N/A';
+    if (dificultad is String && dificultad.contains('/')) return dificultad;
+    return '$dificultad/10';
+  }
+
+  dynamic _getSalario(entities.CareerRecommendation rec) {
+    return rec.infoBasica['salario_promedio'] ?? 
+           rec.infoAdicional['salario_promedio_mxn'] ?? 
+           0;
   }
 
   Widget _buildInfoChip(BuildContext context, IconData icon, String label) {
@@ -629,7 +653,7 @@ class QuestionnaireResultsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '${recomendacion.infoAdicional['area']}',
+                    _getArea(recomendacion),
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: theme.colorScheme.primary,
                     ),
@@ -637,7 +661,7 @@ class QuestionnaireResultsPage extends StatelessWidget {
                   
                   const SizedBox(height: 24),
                   
-                  if (recomendacion.explicacionGenerada) ...[
+                  if (recomendacion.explicacionGenerada && recomendacion.explicacionPersonalizada.isNotEmpty) ...[
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -677,17 +701,19 @@ class QuestionnaireResultsPage extends StatelessWidget {
                     const SizedBox(height: 24),
                   ],
                   
-                  Text(
-                    'Información Detallada',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                  if (recomendacion.explicacion.isNotEmpty) ...[
+                    Text(
+                      'Información Detallada',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    recomendacion.explicacion,
-                    style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
-                  ),
+                    const SizedBox(height: 8),
+                    Text(
+                      recomendacion.explicacion,
+                      style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
+                    ),
+                  ],
                   
                   if (recomendacion.fortalezas.isNotEmpty) ...[
                     const SizedBox(height: 24),
@@ -768,6 +794,7 @@ class QuestionnaireResultsPage extends StatelessWidget {
   String _formatSalary(dynamic salary) {
     if (salary == null) return 'N/A';
     final amount = (salary as num).toInt();
+    if (amount == 0) return 'N/A';
     return '${(amount / 1000).toStringAsFixed(0)}K';
   }
 

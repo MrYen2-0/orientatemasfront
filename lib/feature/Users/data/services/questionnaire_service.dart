@@ -59,7 +59,7 @@ class QuestionnaireService {
 
       return null;
     } on DioException catch (e) {
-      print('Error iniciando sesión: ${e.message}');
+      print('Error iniciando sesion: ${e.message}');
       print('Response: ${e.response?.data}');
       return null;
     } catch (e) {
@@ -115,26 +115,27 @@ class QuestionnaireService {
     }
   }
 
-Future<PredictionResponse?> getResults(String sessionId) async {
-  try {
-    final response = await dio.get(
-      '/api/questionnaire/session/$sessionId/prediction'
-    );
+  Future<PredictionResponse?> finishSession(String sessionId) async {
+    try {
+      final response = await dio.post(
+        '/api/questionnaire/session/$sessionId/finish',
+      );
 
-    if (response.statusCode == 200 && response.data != null) {
-      return PredictionResponse.fromJson(response.data);
+      if (response.statusCode == 200 && response.data != null) {
+        return PredictionResponse.fromJson(response.data);
+      }
+      
+      return null;
+    } on DioException catch (e) {
+      print('Error finalizando sesion: ${e.message}');
+      print('Response: ${e.response?.data}');
+      return null;
+    } catch (e) {
+      print('Error: $e');
+      return null;
     }
-    
-    return null;
-  } on DioException catch (e) {
-    print('Error obteniendo resultados: ${e.message}');
-    print('Response: ${e.response?.data}');
-    return null;
-  } catch (e) {
-    print('Error: $e');
-    return null;
   }
-}
+
   Future<bool> healthCheck() async {
     try {
       final response = await dio.get('/api/questionnaire/health');

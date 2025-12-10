@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:integradorfront/core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import 'edit_profile_page.dart';
-import 'change_password_page.dart';
+import '../providers/auth_provider.dart';
 import 'help_center_page.dart';
 import 'contact_support_page.dart';
 import 'report_problem_page.dart';
@@ -16,9 +18,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool _notificationsEnabled = true;
-  bool _emailNotifications = true;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,62 +36,6 @@ class _SettingsPageState extends State<SettingsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 8),
-
-            // Sección: Cuenta
-            _buildMenuItem(
-              icon: Icons.person_outline,
-              title: 'Editar información personal',
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const EditProfilePage()),
-                );
-              },
-            ),
-            _buildMenuItem(
-              icon: Icons.lock_outline,
-              title: 'Cambiar contraseña',
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const ChangePasswordPage()),
-                );
-              },
-            ),
-            _buildMenuItem(
-              icon: Icons.delete_outline,
-              title: 'Eliminar cuenta',
-              titleColor: AppColors.error600,
-              onTap: () {
-                _showDeleteAccountDialog();
-              },
-            ),
-
-            const SizedBox(height: 16),
-            Container(height: 8, color: AppColors.gray100),
-
-            // Sección: Notificaciones
-            _buildSectionHeader('Notificaciones'),
-            _buildSwitchItem(
-              icon: Icons.notifications_outlined,
-              title: 'Activar notificaciones',
-              value: _notificationsEnabled,
-              onChanged: (value) {
-                setState(() => _notificationsEnabled = value);
-              },
-            ),
-            _buildSwitchItem(
-              icon: Icons.email_outlined,
-              title: 'Notificaciones por email',
-              value: _emailNotifications,
-              onChanged: (value) {
-                setState(() => _emailNotifications = value);
-              },
-            ),
-
-            const SizedBox(height: 16),
-            Container(height: 8, color: AppColors.gray100),
-
-            // Sección: Soporte y ayuda
             _buildMenuItem(
               icon: Icons.help_outline,
               title: 'Centro de ayuda',
@@ -120,11 +63,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 );
               },
             ),
-
             const SizedBox(height: 16),
             Container(height: 8, color: AppColors.gray100),
-
-            // Sección: Acerca de la app
             _buildMenuItem(
               icon: Icons.info_outline,
               title: 'Información de la app',
@@ -141,10 +81,7 @@ class _SettingsPageState extends State<SettingsPage> {
               onTap: null,
               showArrow: false,
             ),
-
             const SizedBox(height: 32),
-
-            // Botón Cerrar Sesión
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SizedBox(
@@ -161,21 +98,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
             ),
-
             const SizedBox(height: 32),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Text(
-        title,
-        style: AppTextStyles.overline.copyWith(
-          color: AppColors.gray500,
         ),
       ),
     );
@@ -220,29 +144,6 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _buildSwitchItem({
-    required IconData icon,
-    required String title,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return Container(
-      color: AppColors.white,
-      child: SwitchListTile(
-        secondary: Icon(icon, color: AppColors.gray600, size: 24),
-        title: Text(
-          title,
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.gray900,
-          ),
-        ),
-        value: value,
-        onChanged: onChanged,
-        activeColor: AppColors.primary600,
-      ),
-    );
-  }
-
   void _handleLogout() {
     showDialog(
       context: context,
@@ -255,45 +156,13 @@ class _SettingsPageState extends State<SettingsPage> {
             child: const Text('Cancelar'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.of(context).pop();
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                '/login',
-                    (route) => false,
-              );
+              final authProvider = Provider.of<AuthProvider>(context, listen: false);
+              await authProvider.logout();
             },
             child: const Text(
               'Cerrar sesión',
-              style: TextStyle(color: AppColors.error600),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showDeleteAccountDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Eliminar cuenta'),
-        content: const Text(
-          'Esta acción es permanente y no se puede deshacer. '
-              'Todos tus datos serán eliminados.\n\n'
-              '¿Estás seguro que deseas continuar?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              // TODO: Implementar eliminación de cuenta
-            },
-            child: const Text(
-              'Eliminar',
               style: TextStyle(color: AppColors.error600),
             ),
           ),

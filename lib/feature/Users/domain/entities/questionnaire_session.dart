@@ -223,38 +223,18 @@ class CareerRecommendation {
       carrera: json['nombre'] ?? json['carrera'] ?? '',
       nombreCompleto: json['nombre_completo'] ?? json['nombre'] ?? '',
       matchScore: (json['match_score'] ?? 0.0).toDouble(),
-      matchScorePorcentaje: json['match_score_porcentaje'] ?? '0%',
+      matchScorePorcentaje: json['match_porcentaje'] ?? json['match_score_porcentaje'] ?? '0%',
       categoria: json['categoria'] ?? '',
       rama: json['rama'],
-      explicacion: json['explicacion_personalizada'] ?? json['explicacion'] ?? 'Sin explicación disponible',
-      explicacionPersonalizada: json['explicacion_personalizada'] ?? 'Sin explicación personalizada disponible',
-      explicacionGenerada: json['explicacion_generada'] ?? false,
+      explicacion: json['explicacion_llm'] ?? json['explicacion_personalizada'] ?? json['explicacion'] ?? 'Sin explicacion disponible',
+      explicacionPersonalizada: json['explicacion_llm'] ?? json['explicacion_personalizada'] ?? 'Sin explicacion personalizada disponible',
+      explicacionGenerada: json['explicacion_generada_por_ia'] ?? json['explicacion_generada'] ?? false,
       infoBasica: json['info_basica'] ?? {},
       mercadoLaboral: json['mercado_laboral'] ?? {},
       fortalezas: List<String>.from(json['ventajas'] ?? json['fortalezas'] ?? []),
       consideraciones: List<String>.from(json['desafios'] ?? json['consideraciones'] ?? []),
       infoAdicional: _buildInfoAdicional(json),
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'ranking': ranking,
-      'codigo': codigo,
-      'nombre': carrera,
-      'nombre_completo': nombreCompleto,
-      'match_score': matchScore,
-      'match_score_porcentaje': matchScorePorcentaje,
-      'categoria': categoria,
-      'rama': rama,
-      'explicacion': explicacion,
-      'explicacion_personalizada': explicacionPersonalizada,
-      'explicacion_generada': explicacionGenerada,
-      'info_basica': infoBasica,
-      'mercado_laboral': mercadoLaboral,
-      'ventajas': fortalezas,
-      'desafios': consideraciones,
-    };
   }
 
   static Map<String, dynamic> _buildInfoAdicional(Map<String, dynamic> json) {
@@ -270,6 +250,25 @@ class CareerRecommendation {
       'demanda_laboral': mercado['demanda'] ?? 'N/A',
       'crecimiento': mercado['crecimiento'] ?? 'N/A',
       'oportunidades': mercado['oportunidades'] ?? [],
+    };
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'ranking': ranking,
+      'codigo': codigo,
+      'nombre': carrera,
+      'nombre_completo': nombreCompleto,
+      'match_score': matchScore,
+      'match_porcentaje': matchScorePorcentaje,
+      'categoria': categoria,
+      'rama': rama,
+      'explicacion_llm': explicacionPersonalizada,
+      'explicacion_generada_por_ia': explicacionGenerada,
+      'info_basica': infoBasica,
+      'mercado_laboral': mercadoLaboral,
+      'ventajas': fortalezas,
+      'desafios': consideraciones,
     };
   }
 }

@@ -5,7 +5,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../providers/questionnaire_provider.dart';
 import '../providers/auth_provider.dart';
 import 'notifications_page.dart';
-import 'profile_page.dart';
+//import 'profile_page.dart';
 import 'settings_page.dart';
 import 'explore_careers_page.dart';
 import 'universities_page.dart';
@@ -159,36 +159,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        actions: [
-          Stack(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.notifications_outlined),
-                color: AppColors.gray900,
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const NotificationsPage(),
-                    ),
-                  );
-                },
-              ),
-              Positioned(
-                right: 10,
-                top: 10,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: AppColors.error600,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 8),
-        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -329,11 +299,6 @@ class _HomePageState extends State<HomePage> {
             case 2:
               Navigator.of(
                 context,
-              ).push(MaterialPageRoute(builder: (_) => const ProfilePage()));
-              break;
-            case 3:
-              Navigator.of(
-                context,
               ).push(MaterialPageRoute(builder: (_) => const SettingsPage()));
               break;
           }
@@ -346,11 +311,7 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.explore_outlined),
             label: 'Explorar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: 'Perfil',
-          ),
+          ),          
           BottomNavigationBarItem(
             icon: Icon(Icons.settings_outlined),
             label: 'Ajustes',

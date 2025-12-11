@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../providers/auth_provider.dart';
 
 class SplashPage extends StatefulWidget {
@@ -34,8 +33,10 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: AppColors.primary600,
+      backgroundColor: colorScheme.primary,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -44,41 +45,48 @@ class _SplashPageState extends State<SplashPage> {
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: AppColors.white,
+                color: colorScheme.surface,
                 borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: colorScheme.shadow.withOpacity(0.2),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
                   'O+',
                   style: TextStyle(
                     fontSize: 60,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.primary600,
+                    color: colorScheme.primary,
                   ),
                 ),
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'ORIENTATE+',
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.w700,
-                color: AppColors.white,
+                color: colorScheme.onPrimary,
                 letterSpacing: 2,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Descubre tu futuro profesional',
               style: TextStyle(
                 fontSize: 16,
-                color: AppColors.white,
+                color: colorScheme.onPrimary.withOpacity(0.9),
               ),
             ),
             const SizedBox(height: 48),
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(colorScheme.onPrimary),
             ),
           ],
         ),

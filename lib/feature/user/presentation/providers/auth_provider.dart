@@ -9,18 +9,9 @@ import '../../domain/usecases/get_current_user_usecase.dart';
 import '../../data/datasource/local/auth_local_datasource.dart';
 import '../../../../core/error/failures.dart';
 
-enum AuthStatus {
-  initial,
-  authenticated,
-  unauthenticated,
-  loading,
-  error,
-}
+enum AuthStatus { initial, authenticated, unauthenticated, loading, error }
 
-enum UserType {
-  student,
-  tutor,
-}
+enum UserType { student, tutor }
 
 class AuthProvider extends ChangeNotifier {
   final LoginUseCase loginUseCase;
@@ -80,10 +71,10 @@ class AuthProvider extends ChangeNotifier {
           _status = AuthStatus.authenticated;
           _user = user;
           _userType = user.isTutor ? UserType.tutor : UserType.student;
-          
+
           // ← NUEVO: Cargar token
           _authToken = await authLocalDataSource.getToken();
-          
+
           notifyListeners();
         },
       );
@@ -95,17 +86,11 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<bool> login({required String email, required String password}) async {
     _setLoading(true);
     _errorMessage = null;
 
-    final result = await loginUseCase(
-      email: email,
-      password: password,
-    );
+    final result = await loginUseCase(email: email, password: password);
 
     return result.fold(
       (failure) {
@@ -122,11 +107,13 @@ class AuthProvider extends ChangeNotifier {
         _user = user;
         _userType = user.isTutor ? UserType.tutor : UserType.student;
         _errorMessage = null;
-        
+
         // ← NUEVO: Cargar token después del login
         _authToken = await authLocalDataSource.getToken();
-        print('🔑 Token cargado después de login: ${_authToken?.substring(0, 20)}...');
-        
+        print(
+          '🔑 Token cargado después de login: ${_authToken?.substring(0, 20)}...',
+        );
+
         notifyListeners();
         return true;
       },
@@ -166,11 +153,13 @@ class AuthProvider extends ChangeNotifier {
         _user = user;
         _userType = UserType.student;
         _errorMessage = null;
-        
+
         // ← NUEVO: Cargar token después del registro
         _authToken = await authLocalDataSource.getToken();
-        print('🔑 Token cargado después de registro: ${_authToken?.substring(0, 20)}...');
-        
+        print(
+          '🔑 Token cargado después de registro: ${_authToken?.substring(0, 20)}...',
+        );
+
         notifyListeners();
         return true;
       },
@@ -207,10 +196,13 @@ class AuthProvider extends ChangeNotifier {
         _setLoading(false);
         _user = data['tutor'];
         _tutorId = data['tutor'].id;
-        _tutorToken = data['token']; // Token temporal solo para registro de menor
+        _tutorToken =
+            data['token']; // Token temporal solo para registro de menor
         _userType = UserType.tutor;
         _errorMessage = null;
-        print('🔑 Token temporal de tutor: ${_tutorToken?.substring(0, 20)}...');
+        print(
+          '🔑 Token temporal de tutor: ${_tutorToken?.substring(0, 20)}...',
+        );
         notifyListeners();
         return true;
       },
@@ -257,18 +249,20 @@ class AuthProvider extends ChangeNotifier {
         _status = AuthStatus.authenticated;
         _user = user;
         _errorMessage = null;
-        
+
         // ← NUEVO: El menor hereda el token del tutor
         if (_tutorToken != null) {
           await authLocalDataSource.cacheToken(_tutorToken!);
           _authToken = _tutorToken;
-          print('🔑 Menor heredó token del tutor: ${_authToken?.substring(0, 20)}...');
+          print(
+            '🔑 Menor heredó token del tutor: ${_authToken?.substring(0, 20)}...',
+          );
         }
-        
+
         // Limpiar datos temporales
         _tutorId = null;
         _tutorToken = null;
-        
+
         notifyListeners();
         return true;
       },
@@ -315,11 +309,11 @@ class AuthProvider extends ChangeNotifier {
 
   String _mapFailureToMessage(Failure failure) {
     if (failure is ServerFailure) {
-      return failure.message ?? 'Error del servidor';
+      return failure.message;
     } else if (failure is NetworkFailure) {
-      return failure.message ?? 'Sin conexión a internet';
+      return failure.message;
     } else if (failure is CacheFailure) {
-      return failure.message ?? 'Error de caché';
+      return failure.message;
     }
     return 'Error desconocido';
   }

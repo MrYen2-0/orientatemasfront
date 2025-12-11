@@ -447,7 +447,7 @@ class QuestionnaireResultsPage extends StatelessWidget {
   }
 
   String _getArea(entities.CareerRecommendation rec) {
-    return rec.rama ?? rec.categoria ?? 'N/A';
+    return rec.rama ?? rec.categoria;
   }
 
   dynamic _getDuracion(entities.CareerRecommendation rec) {

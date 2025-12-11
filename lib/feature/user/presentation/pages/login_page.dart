@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../providers/auth_provider.dart';
 
 class LoginPage extends StatefulWidget {
@@ -80,7 +78,7 @@ class _LoginPageState extends State<LoginPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error inesperado: $e'),
-            backgroundColor: AppColors.error600,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -89,8 +87,11 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Scaffold(
-      backgroundColor: AppColors.white,
       body: SafeArea(
         child: Consumer<AuthProvider>(
           builder: (context, authProvider, child) {
@@ -99,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(authProvider.errorMessage!),
-                    backgroundColor: AppColors.error600,
+                    backgroundColor: colorScheme.error,
                   ),
                 );
                 setState(() => _errorShown = true);
@@ -116,46 +117,49 @@ class _LoginPageState extends State<LoginPage> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const SizedBox(height: 40),
+                      // Logo
                       Center(
                         child: Container(
                           width: 100,
                           height: 100,
                           decoration: BoxDecoration(
-                            color: AppColors.primary50,
+                            color: colorScheme.primaryContainer,
                             borderRadius: BorderRadius.circular(24),
                             border: Border.all(
-                              color: AppColors.primary600,
+                              color: colorScheme.primary,
                               width: 2,
                             ),
                           ),
-                          child: const Center(
+                          child: Center(
                             child: Text(
                               'O+',
                               style: TextStyle(
                                 fontSize: 48,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.primary600,
+                                color: colorScheme.primary,
                               ),
                             ),
                           ),
                         ),
                       ),
                       const SizedBox(height: 32),
+                      // Título
                       Text(
                         'Bienvenido de nuevo',
-                        style: AppTextStyles.h2,
+                        style: textTheme.displayMedium,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
                       Text(
                         'Inicia sesión para continuar',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.gray600,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
                         ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 40),
-                      Text('Correo electrónico', style: AppTextStyles.label),
+                      // Email
+                      Text('Correo electrónico', style: textTheme.labelLarge),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _emailController,
@@ -168,14 +172,16 @@ class _LoginPageState extends State<LoginPage> {
                           if (value == null || value.isEmpty) {
                             return 'Por favor ingresa tu email';
                           }
-                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                              .hasMatch(value)) {
                             return 'Email inválido';
                           }
                           return null;
                         },
                       ),
                       const SizedBox(height: 20),
-                      Text('Contraseña', style: AppTextStyles.label),
+                      // Contraseña
+                      Text('Contraseña', style: textTheme.labelLarge),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _passwordController,
@@ -207,6 +213,7 @@ class _LoginPageState extends State<LoginPage> {
                         },
                       ),
                       const SizedBox(height: 12),
+                      // Olvidaste contraseña
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
@@ -217,22 +224,25 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       const SizedBox(height: 24),
+                      // Botón de login
                       ElevatedButton(
-                        onPressed: authProvider.isLoading ? null : _performLogin,
+                        onPressed:
+                            authProvider.isLoading ? null : _performLogin,
                         child: authProvider.isLoading
-                            ? const SizedBox(
+                            ? SizedBox(
                                 height: 20,
                                 width: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                    AppColors.white,
+                                    colorScheme.onPrimary,
                                   ),
                                 ),
                               )
                             : const Text('Iniciar Sesión'),
                       ),
                       const SizedBox(height: 24),
+                      // Divider
                       Row(
                         children: [
                           const Expanded(child: Divider()),
@@ -240,8 +250,8 @@ class _LoginPageState extends State<LoginPage> {
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Text(
                               'O',
-                              style: AppTextStyles.bodySmall.copyWith(
-                                color: AppColors.gray500,
+                              style: textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ),
@@ -249,21 +259,22 @@ class _LoginPageState extends State<LoginPage> {
                         ],
                       ),
                       const SizedBox(height: 24),
+                      // Link de registro
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
                             '¿No tienes cuenta? ',
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.gray600,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
                             ),
                           ),
                           TextButton(
                             onPressed: _showRegistrationDialog,
                             child: Text(
                               'Regístrate aquí',
-                              style: AppTextStyles.bodySmall.copyWith(
-                                color: AppColors.primary600,
+                              style: textTheme.bodySmall?.copyWith(
+                                color: colorScheme.primary,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),

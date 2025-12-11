@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
 
 class AppInfoPage extends StatelessWidget {
   const AppInfoPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Scaffold(
-      backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.gray900),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text('Información de la App', style: AppTextStyles.h4),
+        title: Text('Información de la App', style: textTheme.titleLarge),
         centerTitle: true,
       ),
       body: ListView(
@@ -24,11 +24,11 @@ class AppInfoPage extends StatelessWidget {
           // Header con logo
           Container(
             padding: const EdgeInsets.all(32),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [AppColors.primary50, AppColors.white],
+                colors: [colorScheme.primaryContainer, colorScheme.surface],
               ),
             ),
             child: Column(
@@ -37,42 +37,42 @@ class AppInfoPage extends StatelessWidget {
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    color: AppColors.primary600,
+                    color: colorScheme.primary,
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primary600.withOpacity(0.3),
+                        color: colorScheme.primary.withOpacity(0.3),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
                     ],
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text(
                       'O+',
                       style: TextStyle(
                         fontSize: 48,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.white,
+                        color: colorScheme.onPrimary,
                       ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
+                Text(
                   'ORIENTA+',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.primary600,
+                    color: colorScheme.primary,
                     letterSpacing: 1.5,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Sistema Profesional de Orientación Vocacional',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.gray600,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -83,14 +83,14 @@ class AppInfoPage extends StatelessWidget {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.success50,
+                    color: colorScheme.secondaryContainer,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.success600),
+                    border: Border.all(color: colorScheme.secondary),
                   ),
                   child: Text(
                     'Versión 1.0.0',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.success700,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSecondaryContainer,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -103,16 +103,19 @@ class AppInfoPage extends StatelessWidget {
 
           // Información general
           _buildSection(
+            context,
             'Acerca de',
             'Orienta+ es una plataforma innovadora diseñada para ayudar a estudiantes de preparatoria en México a descubrir su vocación profesional mediante evaluaciones científicamente validadas y recomendaciones personalizadas.',
           ),
 
           _buildSection(
+            context,
             'Nuestra Misión',
             'Empoderar a los jóvenes mexicanos con las herramientas necesarias para tomar decisiones informadas sobre su futuro profesional, reduciendo la deserción universitaria y aumentando la satisfacción laboral.',
           ),
 
           _buildSection(
+            context,
             'Características Principales',
                 '• Recomendaciones personalizadas de carreras\n'
                 '• Información actualizada del mercado laboral\n'
@@ -127,21 +130,21 @@ class AppInfoPage extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.gray50,
+                color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.gray200),
+                border: Border.all(color: colorScheme.outline),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Información Técnica', style: AppTextStyles.h4),
+                  Text('Información Técnica', style: textTheme.titleLarge),
                   const SizedBox(height: 16),
-                  _buildInfoRow('Versión', '1.0.0'),
-                  _buildInfoRow('Última actualización', '20 de Octubre, 2025'),
-                  _buildInfoRow('Tamaño', '45.2 MB'),
-                  _buildInfoRow('Desarrollador', 'SoftCode Team'),
-                  _buildInfoRow('Plataforma', 'Android, iOS, Web'),
-                  _buildInfoRow('Idioma', 'Español'),
+                  _buildInfoRow(context, 'Versión', '1.0.0'),
+                  _buildInfoRow(context, 'Última actualización', '20 de Octubre, 2025'),
+                  _buildInfoRow(context, 'Tamaño', '45.2 MB'),
+                  _buildInfoRow(context, 'Desarrollador', 'SoftCode Team'),
+                  _buildInfoRow(context, 'Plataforma', 'Android, iOS, Web'),
+                  _buildInfoRow(context, 'Idioma', 'Español'),
                 ],
               ),
             ),
@@ -153,34 +156,37 @@ class AppInfoPage extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.primary50,
+                color: colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.primary700),
+                border: Border.all(color: colorScheme.primary),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.contact_mail,
-                        color: AppColors.primary600,
+                        color: colorScheme.primary,
                         size: 24,
                       ),
                       const SizedBox(width: 12),
-                      Text('Contacto', style: AppTextStyles.h4),
+                      Text('Contacto', style: textTheme.titleLarge),
                     ],
                   ),
                   const SizedBox(height: 16),
                   _buildContactRow(
+                    context,
                     Icons.email,
                     'softcode20246@gmail.com',
                   ),
                   _buildContactRow(
+                    context,
                     Icons.phone,
                     '961 300 8534',
                   ),
                   _buildContactRow(
+                    context,
                     Icons.language,
                     'www.orientaplus.com',
                   ),
@@ -195,18 +201,18 @@ class AppInfoPage extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.white,
+                color: colorScheme.surface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.gray200),
+                border: Border.all(color: colorScheme.outline),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Créditos y Agradecimientos', style: AppTextStyles.h4),
+                  Text('Créditos y Agradecimientos', style: textTheme.titleLarge),
                   const SizedBox(height: 16),
                   Text(
                     'Equipo de Desarrollo',
-                    style: AppTextStyles.bodyMedium.copyWith(
+                    style: textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -214,8 +220,8 @@ class AppInfoPage extends StatelessWidget {
                   Text(
                     '• SoftCode Development Team\n'
                         '• Diseño UI/UX por SoftCode Design\n',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.gray600,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
                       height: 1.5,
                     ),
                   ),
@@ -230,8 +236,8 @@ class AppInfoPage extends StatelessWidget {
             child: Text(
               '© 2025 Orienta+. Todos los derechos reservados.\n'
                   'Desarrollado con ❤️ en México',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.gray500,
+              style: textTheme.bodySmall?.copyWith(
+                color: colorScheme.outline,
               ),
               textAlign: TextAlign.center,
             ),
@@ -241,7 +247,10 @@ class AppInfoPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSection(String title, String content) {
+  Widget _buildSection(BuildContext context, String title, String content) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
@@ -249,13 +258,13 @@ class AppInfoPage extends StatelessWidget {
         children: [
           Text(
             title,
-            style: AppTextStyles.h4,
+            style: textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
           Text(
             content,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.gray700,
+            style: textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurface,
               height: 1.6,
             ),
           ),
@@ -264,7 +273,10 @@ class AppInfoPage extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoRow(BuildContext context, String label, String value) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -274,8 +286,8 @@ class AppInfoPage extends StatelessWidget {
             flex: 2,
             child: Text(
               label,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.gray600,
+              style: textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -283,8 +295,8 @@ class AppInfoPage extends StatelessWidget {
             flex: 3,
             child: Text(
               value,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.gray900,
+              style: textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurface,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -294,17 +306,20 @@ class AppInfoPage extends StatelessWidget {
     );
   }
 
-  Widget _buildContactRow(IconData icon, String text) {
+  Widget _buildContactRow(BuildContext context, IconData icon, String text) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: AppColors.primary600),
+          Icon(icon, size: 18, color: colorScheme.primary),
           const SizedBox(width: 12),
           Text(
             text,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.primary700,
+            style: textTheme.bodySmall?.copyWith(
+              color: colorScheme.onPrimaryContainer,
               fontWeight: FontWeight.w600,
             ),
           ),

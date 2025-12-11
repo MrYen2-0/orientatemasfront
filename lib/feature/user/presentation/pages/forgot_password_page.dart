@@ -25,7 +25,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
-      // Simular llamada a API
       await Future.delayed(const Duration(seconds: 2));
 
       if (mounted) {

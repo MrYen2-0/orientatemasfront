@@ -705,11 +705,6 @@ class QuestionnaireResultsPage extends StatelessWidget {
     );
   }
 
-  void _finishAndGoHome(BuildContext context) {
-    context.read<QuestionnaireProvider>().reset();
-    Navigator.popUntil(context, (route) => route.isFirst);
-  }
-
   void _startNewTest(BuildContext context) {
     showDialog(
       context: context,

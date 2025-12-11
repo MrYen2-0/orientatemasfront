@@ -1,48 +1,47 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
 
 class HelpCenterPage extends StatelessWidget {
   const HelpCenterPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: AppColors.gray50,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.gray900),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text('Centro de Ayuda', style: AppTextStyles.h4),
+        title: Text('Centro de Ayuda', style: textTheme.titleLarge),
         centerTitle: true,
       ),
       body: ListView(
         children: [
           // Header
           Container(
-            color: AppColors.primary50,
+            color: colorScheme.primaryContainer,
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
                 Icon(
                   Icons.help_outline,
                   size: 60,
-                  color: AppColors.primary600,
+                  color: colorScheme.primary,
                 ),
                 const SizedBox(height: 16),
                 Text(
                   '¿En qué podemos ayudarte?',
-                  style: AppTextStyles.h3,
+                  style: textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Encuentra respuestas a las preguntas más frecuentes',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.gray600,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -145,34 +144,29 @@ class HelpCenterPage extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppColors.primary600, AppColors.primary700],
-                ),
+                color: colorScheme.primary,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.headset_mic,
-                    color: AppColors.white,
+                    color: colorScheme.onPrimary,
                     size: 40,
                   ),
                   const SizedBox(height: 12),
-                  const Text(
+                  Text(
                     '¿No encontraste lo que buscabas?',
-                    style: TextStyle(
-                      color: AppColors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                    style: textTheme.titleMedium?.copyWith(
+                      color: colorScheme.onPrimary,
                     ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Nuestro equipo de soporte está listo para ayudarte',
-                    style: TextStyle(
-                      color: AppColors.white,
-                      fontSize: 14,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onPrimary,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -180,11 +174,10 @@ class HelpCenterPage extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).pop();
-                      // Navegar a contactar soporte
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.white,
-                      foregroundColor: AppColors.primary600,
+                      backgroundColor: colorScheme.surface,
+                      foregroundColor: colorScheme.primary,
                     ),
                     child: const Text('Contactar Soporte'),
                   ),
@@ -206,12 +199,15 @@ class HelpCenterPage extends StatelessWidget {
         required String subtitle,
         required List<FAQItem> questions,
       }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12, left: 16, right: 16),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.gray200),
+        border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -219,37 +215,40 @@ class HelpCenterPage extends StatelessWidget {
           leading: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppColors.primary50,
+              color: colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: AppColors.primary600, size: 24),
+            child: Icon(icon, color: colorScheme.primary, size: 24),
           ),
           title: Text(
             title,
-            style: AppTextStyles.bodyLarge.copyWith(
+            style: textTheme.bodyLarge?.copyWith(
               fontWeight: FontWeight.w600,
             ),
           ),
           subtitle: Text(
             subtitle,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.gray600,
+            style: textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
           children: questions.map((faq) {
-            return _buildFAQItem(faq);
+            return _buildFAQItem(context, faq);
           }).toList(),
         ),
       ),
     );
   }
 
-  Widget _buildFAQItem(FAQItem faq) {
+  Widget _buildFAQItem(BuildContext context, FAQItem faq) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(color: AppColors.gray200),
+          top: BorderSide(color: colorScheme.outline.withOpacity(0.2)),
         ),
       ),
       child: Column(
@@ -258,18 +257,18 @@ class HelpCenterPage extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(
+              Icon(
                 Icons.help_outline,
                 size: 20,
-                color: AppColors.primary600,
+                color: colorScheme.primary,
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   faq.question,
-                  style: AppTextStyles.bodyMedium.copyWith(
+                  style: textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.gray900,
+                    color: colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -280,8 +279,8 @@ class HelpCenterPage extends StatelessWidget {
             padding: const EdgeInsets.only(left: 28),
             child: Text(
               faq.answer,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.gray600,
+              style: textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
                 height: 1.5,
               ),
             ),

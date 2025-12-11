@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
+import 'package:go_router/go_router.dart';
 
 class UniversitiesPage extends StatefulWidget {
   const UniversitiesPage({super.key});
@@ -104,29 +103,28 @@ class _UniversitiesPageState extends State<UniversitiesPage> {
   @override
   Widget build(BuildContext context) {
     final universities = universitiesByState[_selectedState] ?? [];
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: AppColors.gray50,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.gray900),
-          onPressed: () => Navigator.of(context).pop(),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
+          onPressed: () => context.pop(),
         ),
-        title: Text('Universidades Recomendadas', style: AppTextStyles.h4),
+        title: Text('Universidades Recomendadas', style: textTheme.titleLarge),
         centerTitle: true,
       ),
       body: Column(
         children: [
-          // Selector de estado
           Container(
-            color: AppColors.white,
+            color: colorScheme.surface,
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Selecciona tu estado', style: AppTextStyles.label),
+                Text('Selecciona tu estado', style: textTheme.labelLarge),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
                   value: _selectedState,
@@ -147,7 +145,6 @@ class _UniversitiesPageState extends State<UniversitiesPage> {
             ),
           ),
 
-          // Lista de universidades
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
@@ -162,211 +159,227 @@ class _UniversitiesPageState extends State<UniversitiesPage> {
     );
   }
 
-  Widget _buildUniversityCard(University university) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.gray200),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: university.type == 'Pública'
-                        ? AppColors.primary50
-                        : AppColors.secondary50,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.school,
-                    color: university.type == 'Pública'
-                        ? AppColors.primary600
-                        : AppColors.secondary600,
-                    size: 32,
-                  ),
+Widget _buildUniversityCard(University university) {
+  final colorScheme = Theme.of(context).colorScheme;
+  final textTheme = Theme.of(context).textTheme;
+
+  return Container(
+    margin: const EdgeInsets.only(bottom: 16),
+    decoration: BoxDecoration(
+      color: colorScheme.surface,
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
+      boxShadow: [
+        BoxShadow(
+          color: colorScheme.shadow.withOpacity(0.04),
+          blurRadius: 8,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: university.type == 'Pública'
+                      ? colorScheme.primaryContainer
+                      : colorScheme.secondaryContainer,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: university.type == 'Pública'
-                              ? AppColors.primary100
-                              : AppColors.secondary100,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          university.type,
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: university.type == 'Pública'
-                                ? AppColors.primary700
-                                : AppColors.secondary700,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                child: Icon(
+                  Icons.school,
+                  color: university.type == 'Pública'
+                      ? colorScheme.primary
+                      : colorScheme.secondary,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        university.name,
-                        style: AppTextStyles.bodyLarge.copyWith(
+                      decoration: BoxDecoration(
+                        color: university.type == 'Pública'
+                            ? colorScheme.primaryContainer
+                            : colorScheme.secondaryContainer,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        university.type,
+                        style: textTheme.bodySmall?.copyWith(
+                          color: university.type == 'Pública'
+                              ? colorScheme.primary
+                              : colorScheme.secondary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            // Ubicación y rating
-            Row(
-              children: [
-                const Icon(Icons.location_on, size: 16, color: AppColors.gray500),
-                const SizedBox(width: 4),
-                Text(
-                  university.location,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.gray600,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                const Icon(Icons.star, size: 16, color: AppColors.warning600),
-                const SizedBox(width: 4),
-                Text(
-                  '${university.rating}',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.gray900,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                const Icon(Icons.people, size: 16, color: AppColors.gray500),
-                const SizedBox(width: 4),
-                Text(
-                  university.students,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.gray600,
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            // Programas
-            Text('Programas destacados:', style: AppTextStyles.bodySmall),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: university.programs.map((program) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.gray100,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    program,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.gray700,
                     ),
+                    const SizedBox(height: 8),
+                    Text(
+                      university.name,
+                      style: textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                      overflow: TextOverflow.visible, 
+                      softWrap: true,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          Wrap(
+            spacing: 16,
+            runSpacing: 8,
+            children: [
+              _buildInfoChip(Icons.location_on, university.location, colorScheme),
+              _buildInfoChip(Icons.star, '${university.rating}', colorScheme, isRating: true),
+              _buildInfoChip(Icons.people, university.students, colorScheme),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          Text('Programas destacados:', style: textTheme.bodySmall),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: university.programs.map((program) {
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceVariant.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  program,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+
+          const SizedBox(height: 16),
+
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.green.shade50,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.green.shade200),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.attach_money, size: 16, color: Colors.green.shade600),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Colegiatura: ${university.tuition}',
+                        style: textTheme.bodySmall?.copyWith(
+                          color: Colors.green.shade700,
+                        ),
+                        softWrap: true,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.verified, size: 16, color: colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Acreditación: ${university.accreditation}',
+                        style: textTheme.bodySmall?.copyWith(
+                          color: colorScheme.primary,
+                        ),
+                        softWrap: true,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Información de ${university.name}'),
+                    behavior: SnackBarBehavior.floating,
                   ),
                 );
-              }).toList(),
+              },
+              icon: const Icon(Icons.info_outline, size: 18),
+              label: const Text('Más Información'),
             ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
-            const SizedBox(height: 16),
-
-            // Información adicional
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.success50,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.attach_money, size: 16, color: AppColors.success600),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Colegiatura: ${university.tuition}',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.success700,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(Icons.verified, size: 16, color: AppColors.primary600),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Acreditación: ${university.accreditation}',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.primary700,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            // Botón
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  // TODO: Ver más información
-                },
-                icon: const Icon(Icons.info_outline, size: 18),
-                label: const Text('Más Información'),
-              ),
-            ),
-          ],
+Widget _buildInfoChip(IconData icon, String text, ColorScheme colorScheme, {bool isRating = false}) {
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(
+        icon, 
+        size: 16, 
+        color: isRating ? Colors.orange.shade600 : colorScheme.onSurfaceVariant
+      ),
+      const SizedBox(width: 4),
+      Flexible(
+        child: Text(
+          text,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: isRating 
+              ? colorScheme.onSurface 
+              : colorScheme.onSurfaceVariant,
+            fontWeight: isRating ? FontWeight.w600 : FontWeight.normal,
+          ),
+          overflow: TextOverflow.ellipsis,
         ),
       ),
-    );
-  }
+    ],
+  );
+}
 }
 
 class University {

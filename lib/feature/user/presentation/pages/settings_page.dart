@@ -1,14 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:integradorfront/core/router/app_routes.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/auth_provider.dart';
-import 'help_center_page.dart';
-import 'contact_support_page.dart';
-import 'report_problem_page.dart';
-import 'app_info_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -20,16 +13,17 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: AppColors.gray50,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.gray900),
-          onPressed: () => Navigator.of(context).pop(),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
+          onPressed: () => context.pop(),
         ),
-        title: Text('Configuración', style: AppTextStyles.h4),
+        title: Text('Configuración', style: textTheme.titleLarge),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -39,40 +33,32 @@ class _SettingsPageState extends State<SettingsPage> {
             _buildMenuItem(
               icon: Icons.help_outline,
               title: 'Centro de ayuda',
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const HelpCenterPage()),
-                );
-              },
+              onTap: () => context.push('/help-center'),
             ),
             _buildMenuItem(
               icon: Icons.chat_bubble_outline,
               title: 'Contactar al soporte',
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const ContactSupportPage()),
-                );
-              },
+              onTap: () => context.push('/contact-support'),
             ),
             _buildMenuItem(
               icon: Icons.bug_report_outlined,
               title: 'Reportar un problema',
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const ReportProblemPage()),
-                );
-              },
+              onTap: () => context.push('/report-problem'),
             ),
             const SizedBox(height: 16),
-            Container(height: 8, color: AppColors.gray100),
+            Container(
+              height: 8, 
+              color: colorScheme.surfaceVariant.withOpacity(0.3),
+            ),
+            _buildMenuItem(
+              icon: Icons.article_outlined,
+              title: 'Términos y Condiciones',
+              onTap: () => context.push('/terms-conditions'),
+            ),
             _buildMenuItem(
               icon: Icons.info_outline,
               title: 'Información de la app',
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const AppInfoPage()),
-                );
-              },
+              onTap: () => context.push('/app-info'),
             ),
             _buildMenuItem(
               icon: Icons.code_outlined,
@@ -91,8 +77,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   icon: const Icon(Icons.logout),
                   label: const Text('Cerrar Sesión'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.error600,
-                    foregroundColor: AppColors.white,
+                    backgroundColor: colorScheme.error,
+                    foregroundColor: colorScheme.onError,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                 ),
@@ -113,30 +99,33 @@ class _SettingsPageState extends State<SettingsPage> {
     VoidCallback? onTap,
     bool showArrow = true,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Container(
-      color: AppColors.white,
+      color: colorScheme.surface,
       child: ListTile(
-        leading: Icon(icon, color: AppColors.gray600, size: 24),
+        leading: Icon(icon, color: colorScheme.onSurfaceVariant, size: 24),
         title: Text(
           title,
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: titleColor ?? AppColors.gray900,
+          style: textTheme.bodyMedium?.copyWith(
+            color: titleColor ?? colorScheme.onSurface,
           ),
         ),
         subtitle: subtitle != null
             ? Text(
-          subtitle,
-          style: AppTextStyles.bodySmall.copyWith(
-            color: AppColors.gray600,
-          ),
-        )
+                subtitle,
+                style: textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              )
             : null,
         trailing: showArrow
-            ? const Icon(
-          Icons.chevron_right,
-          color: AppColors.gray400,
-          size: 20,
-        )
+            ? Icon(
+                Icons.chevron_right,
+                color: colorScheme.onSurfaceVariant,
+                size: 20,
+              )
             : null,
         onTap: onTap,
         enabled: onTap != null,
@@ -145,6 +134,8 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void _handleLogout() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -152,18 +143,18 @@ class _SettingsPageState extends State<SettingsPage> {
         content: const Text('¿Estás seguro que deseas cerrar sesión?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.pop(),
             child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () async {
-              Navigator.of(context).pop();
+              context.pop();
               final authProvider = Provider.of<AuthProvider>(context, listen: false);
               await authProvider.logout();
             },
-            child: const Text(
+            child: Text(
               'Cerrar sesión',
-              style: TextStyle(color: AppColors.error600),
+              style: TextStyle(color: colorScheme.error),
             ),
           ),
         ],

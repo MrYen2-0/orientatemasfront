@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../providers/auth_provider.dart';
 
 class RegisterTutorPage extends StatefulWidget {
@@ -35,15 +33,16 @@ class _RegisterTutorPageState extends State<RegisterTutorPage> {
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Scaffold(
-      backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.gray900),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/login'),
         ),
       ),
@@ -55,7 +54,7 @@ class _RegisterTutorPageState extends State<RegisterTutorPage> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(authProvider.errorMessage!),
-                    backgroundColor: AppColors.error600,
+                    backgroundColor: colorScheme.error,
                   ),
                 );
                 setState(() => _errorShown = true);
@@ -73,19 +72,19 @@ class _RegisterTutorPageState extends State<RegisterTutorPage> {
                     children: [
                       Text(
                         'Registro de Tutor',
-                        style: AppTextStyles.h2,
+                        style: textTheme.displayMedium,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
                       Text(
                         'Registra tus datos como tutor o responsable',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.gray600,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
                         ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 32),
-                      Text('Nombre completo', style: AppTextStyles.label),
+                      Text('Nombre completo', style: textTheme.labelLarge),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _nameController,
@@ -101,7 +100,7 @@ class _RegisterTutorPageState extends State<RegisterTutorPage> {
                         },
                       ),
                       const SizedBox(height: 20),
-                      Text('Correo electrónico', style: AppTextStyles.label),
+                      Text('Correo electrónico', style: textTheme.labelLarge),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _emailController,
@@ -123,7 +122,7 @@ class _RegisterTutorPageState extends State<RegisterTutorPage> {
                         },
                       ),
                       const SizedBox(height: 20),
-                      Text('Teléfono', style: AppTextStyles.label),
+                      Text('Teléfono', style: textTheme.labelLarge),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _phoneController,
@@ -140,7 +139,7 @@ class _RegisterTutorPageState extends State<RegisterTutorPage> {
                         },
                       ),
                       const SizedBox(height: 20),
-                      Text('Contraseña', style: AppTextStyles.label),
+                      Text('Contraseña', style: textTheme.labelLarge),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _passwordController,
@@ -172,7 +171,7 @@ class _RegisterTutorPageState extends State<RegisterTutorPage> {
                         },
                       ),
                       const SizedBox(height: 20),
-                      Text('Confirmar contraseña', style: AppTextStyles.label),
+                      Text('Confirmar contraseña', style: textTheme.labelLarge),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _confirmPasswordController,
@@ -226,13 +225,13 @@ class _RegisterTutorPageState extends State<RegisterTutorPage> {
                                 }
                               },
                         child: authProvider.isLoading
-                            ? const SizedBox(
+                            ? SizedBox(
                                 height: 20,
                                 width: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                    AppColors.white,
+                                    colorScheme.onPrimary,
                                   ),
                                 ),
                               )
@@ -244,16 +243,16 @@ class _RegisterTutorPageState extends State<RegisterTutorPage> {
                         children: [
                           Text(
                             '¿Ya tienes cuenta? ',
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.gray600,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
                             ),
                           ),
                           TextButton(
                             onPressed: () => context.go('/login'),
                             child: Text(
                               'Inicia sesión',
-                              style: AppTextStyles.bodySmall.copyWith(
-                                color: AppColors.primary600,
+                              style: textTheme.bodySmall?.copyWith(
+                                color: colorScheme.primary,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../providers/auth_provider.dart';
 
 class RegisterMinorPage extends StatefulWidget {
@@ -60,6 +58,8 @@ class _RegisterMinorPageState extends State<RegisterMinorPage> {
   }
 
   Future<void> _selectDate() async {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime(2006, 1, 1),
@@ -68,8 +68,8 @@ class _RegisterMinorPageState extends State<RegisterMinorPage> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: AppColors.primary600,
+            colorScheme: ColorScheme.light(
+              primary: colorScheme.primary,
             ),
           ),
           child: child!,
@@ -87,13 +87,15 @@ class _RegisterMinorPageState extends State<RegisterMinorPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Scaffold(
-      backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.gray900),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             showDialog(
               context: context,
@@ -134,7 +136,7 @@ class _RegisterMinorPageState extends State<RegisterMinorPage> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(authProvider.errorMessage!),
-                    backgroundColor: AppColors.error600,
+                    backgroundColor: colorScheme.error,
                   ),
                 );
                 setState(() => _errorShown = true);
@@ -163,14 +165,14 @@ class _RegisterMinorPageState extends State<RegisterMinorPage> {
                     children: [
                       Text(
                         'Registro del Estudiante',
-                        style: AppTextStyles.h2,
+                        style: textTheme.displayMedium,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
                       Text(
                         'Completa la información del estudiante bajo tu tutela',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.gray600,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -181,25 +183,25 @@ class _RegisterMinorPageState extends State<RegisterMinorPage> {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: AppColors.primary50,
+                            color: colorScheme.primaryContainer,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.primary700),
+                            border: Border.all(color: colorScheme.primary),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.person_outline,
-                                    color: AppColors.primary600,
+                                    color: colorScheme.primary,
                                     size: 20,
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
                                     'Tutor registrado:',
-                                    style: AppTextStyles.bodySmall.copyWith(
-                                      color: AppColors.primary700,
+                                    style: textTheme.bodySmall?.copyWith(
+                                      color: colorScheme.primary,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -208,8 +210,8 @@ class _RegisterMinorPageState extends State<RegisterMinorPage> {
                               const SizedBox(height: 4),
                               Text(
                                 tutorUser.name,
-                                style: AppTextStyles.bodyMedium.copyWith(
-                                  color: AppColors.primary700,
+                                style: textTheme.bodyMedium?.copyWith(
+                                  color: colorScheme.primary,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -219,7 +221,7 @@ class _RegisterMinorPageState extends State<RegisterMinorPage> {
 
                       const SizedBox(height: 32),
 
-                      Text('Nombre completo del estudiante', style: AppTextStyles.label),
+                      Text('Nombre completo del estudiante', style: textTheme.labelLarge),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _nameController,
@@ -237,7 +239,7 @@ class _RegisterMinorPageState extends State<RegisterMinorPage> {
 
                       const SizedBox(height: 20),
 
-                      Text('Correo electrónico', style: AppTextStyles.label),
+                      Text('Correo electrónico', style: textTheme.labelLarge),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _emailController,
@@ -259,7 +261,7 @@ class _RegisterMinorPageState extends State<RegisterMinorPage> {
 
                       const SizedBox(height: 20),
 
-                      Text('Fecha de nacimiento', style: AppTextStyles.label),
+                      Text('Fecha de nacimiento', style: textTheme.labelLarge),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _birthdateController,
@@ -279,7 +281,7 @@ class _RegisterMinorPageState extends State<RegisterMinorPage> {
 
                       const SizedBox(height: 20),
 
-                      Text('Relación con el estudiante', style: AppTextStyles.label),
+                      Text('Relación con el estudiante', style: textTheme.labelLarge),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
                         value: _selectedRelationship,
@@ -306,7 +308,7 @@ class _RegisterMinorPageState extends State<RegisterMinorPage> {
 
                       const SizedBox(height: 20),
 
-                      Text('Semestre actual', style: AppTextStyles.label),
+                      Text('Semestre actual', style: textTheme.labelLarge),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
                         value: _selectedSemester,
@@ -333,7 +335,7 @@ class _RegisterMinorPageState extends State<RegisterMinorPage> {
 
                       const SizedBox(height: 20),
 
-                      Text('Estado', style: AppTextStyles.label),
+                      Text('Estado', style: textTheme.labelLarge),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
                         value: _selectedState,
@@ -363,23 +365,23 @@ class _RegisterMinorPageState extends State<RegisterMinorPage> {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppColors.success50,
+                          color: colorScheme.secondaryContainer,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.success700),
+                          border: Border.all(color: colorScheme.secondary),
                         ),
                         child: Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.verified_user_outlined,
-                              color: AppColors.success600,
+                              color: colorScheme.secondary,
                               size: 24,
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
                                 'Los datos del estudiante estarán vinculados a tu cuenta de tutor. Podrás supervisar su progreso en cualquier momento.',
-                                style: AppTextStyles.bodySmall.copyWith(
-                                  color: AppColors.success700,
+                                style: textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.onSecondaryContainer,
                                 ),
                               ),
                             ),
@@ -413,13 +415,13 @@ class _RegisterMinorPageState extends State<RegisterMinorPage> {
                                 }
                               },
                         child: authProvider.isLoading
-                            ? const SizedBox(
+                            ? SizedBox(
                                 height: 20,
                                 width: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                    AppColors.white,
+                                    colorScheme.onPrimary,
                                   ),
                                 ),
                               )

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
 
 class ContactSupportPage extends StatefulWidget {
   const ContactSupportPage({super.key});
@@ -23,12 +21,14 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
     super.dispose();
   }
 
-  void _copyToClipboard(String text, String label) {
+  void _copyToClipboard(BuildContext context, String text, String label) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('$label copiado al portapapeles'),
-        backgroundColor: AppColors.success600,
+        backgroundColor: colorScheme.secondary,
         duration: const Duration(seconds: 2),
       ),
     );
@@ -44,6 +44,8 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
       if (mounted) {
         setState(() => _isLoading = false);
 
+        final colorScheme = Theme.of(context).colorScheme;
+
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -52,12 +54,12 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.success50,
+                    color: colorScheme.secondaryContainer,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.check_circle,
-                    color: AppColors.success600,
+                    color: colorScheme.secondary,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -84,16 +86,18 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Scaffold(
-      backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.gray900),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text('Contactar al Soporte', style: AppTextStyles.h4),
+        title: Text('Contactar al Soporte', style: textTheme.titleLarge),
         centerTitle: true,
       ),
       body: ListView(
@@ -105,13 +109,13 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppColors.secondary50,
+                color: colorScheme.secondaryContainer,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.headset_mic,
                 size: 40,
-                color: AppColors.secondary600,
+                color: colorScheme.secondary,
               ),
             ),
           ),
@@ -120,7 +124,7 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
 
           Text(
             'Estamos aquí para ayudarte',
-            style: AppTextStyles.h3,
+            style: textTheme.headlineMedium,
             textAlign: TextAlign.center,
           ),
 
@@ -128,8 +132,8 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
 
           Text(
             'Elige el método de contacto que prefieras o envíanos un mensaje directamente.',
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.gray600,
+            style: textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
             ),
             textAlign: TextAlign.center,
           ),
@@ -137,28 +141,28 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
           const SizedBox(height: 32),
 
           // Métodos de contacto directo
-          Text('Contacto Directo', style: AppTextStyles.h4),
+          Text('Contacto Directo', style: textTheme.titleLarge),
           const SizedBox(height: 16),
 
           // Email
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.primary50,
+              color: colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.primary700),
+              border: Border.all(color: colorScheme.primary),
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.primary600,
+                    color: colorScheme.primary,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.email_outlined,
-                    color: AppColors.white,
+                    color: colorScheme.onPrimary,
                     size: 24,
                   ),
                 ),
@@ -169,15 +173,15 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
                     children: [
                       Text(
                         'Email',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.gray600,
+                        style: textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'softcode20246@gmail.com',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.primary700,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onPrimaryContainer,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -185,8 +189,9 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.copy, color: AppColors.primary600),
+                  icon: Icon(Icons.copy, color: colorScheme.primary),
                   onPressed: () => _copyToClipboard(
+                    context,
                     'softcode20246@gmail.com',
                     'Email',
                   ),
@@ -201,21 +206,21 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.secondary50,
+              color: colorScheme.secondaryContainer,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.secondary700),
+              border: Border.all(color: colorScheme.secondary),
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.secondary600,
+                    color: colorScheme.secondary,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.phone_outlined,
-                    color: AppColors.white,
+                    color: colorScheme.onSecondary,
                     size: 24,
                   ),
                 ),
@@ -226,15 +231,15 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
                     children: [
                       Text(
                         'Teléfono',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.gray600,
+                        style: textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         '961 300 8534',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.secondary700,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSecondaryContainer,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -242,8 +247,9 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.copy, color: AppColors.secondary600),
+                  icon: Icon(Icons.copy, color: colorScheme.secondary),
                   onPressed: () => _copyToClipboard(
+                    context,
                     '9613008534',
                     'Teléfono',
                   ),
@@ -255,7 +261,7 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
           const SizedBox(height: 32),
 
           // Formulario de contacto
-          Text('Enviar un Mensaje', style: AppTextStyles.h4),
+          Text('Enviar un Mensaje', style: textTheme.titleLarge),
           const SizedBox(height: 16),
 
           Form(
@@ -264,7 +270,7 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Asunto
-                Text('Asunto', style: AppTextStyles.label),
+                Text('Asunto', style: textTheme.labelLarge),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _subjectController,
@@ -283,7 +289,7 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
                 const SizedBox(height: 20),
 
                 // Mensaje
-                Text('Mensaje', style: AppTextStyles.label),
+                Text('Mensaje', style: textTheme.labelLarge),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _messageController,
@@ -309,23 +315,23 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.info50,
+                    color: colorScheme.tertiaryContainer,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.info700),
+                    border: Border.all(color: colorScheme.tertiary),
                   ),
                   child: Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.info_outline,
-                        color: AppColors.info600,
+                        color: colorScheme.tertiary,
                         size: 20,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           'Te responderemos en menos de 24 horas',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.info700,
+                          style: textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onTertiaryContainer,
                           ),
                         ),
                       ),
@@ -341,13 +347,13 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
                   child: ElevatedButton.icon(
                     onPressed: _isLoading ? null : _sendMessage,
                     icon: _isLoading
-                        ? const SizedBox(
+                        ? SizedBox(
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.white,
+                          colorScheme.onPrimary,
                         ),
                       ),
                     )
@@ -365,32 +371,32 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.gray50,
+              color: colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.gray200),
+              border: Border.all(color: colorScheme.outline),
             ),
             child: Column(
               children: [
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.access_time,
-                      color: AppColors.gray600,
+                      color: colorScheme.onSurfaceVariant,
                       size: 20,
                     ),
                     const SizedBox(width: 8),
                     Text(
                       'Horario de Atención',
-                      style: AppTextStyles.bodyMedium.copyWith(
+                      style: textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
-                _buildScheduleRow('Lunes - Viernes', '9:00 AM - 6:00 PM'),
-                _buildScheduleRow('Sábados', '10:00 AM - 2:00 PM'),
-                _buildScheduleRow('Domingos', 'Cerrado'),
+                _buildScheduleRow(context, 'Lunes - Viernes', '9:00 AM - 6:00 PM'),
+                _buildScheduleRow(context, 'Sábados', '10:00 AM - 2:00 PM'),
+                _buildScheduleRow(context, 'Domingos', 'Cerrado'),
               ],
             ),
           ),
@@ -399,7 +405,10 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
     );
   }
 
-  Widget _buildScheduleRow(String day, String hours) {
+  Widget _buildScheduleRow(BuildContext context, String day, String hours) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -407,14 +416,14 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
         children: [
           Text(
             day,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.gray600,
+            style: textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
           Text(
             hours,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.gray900,
+            style: textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurface,
               fontWeight: FontWeight.w600,
             ),
           ),

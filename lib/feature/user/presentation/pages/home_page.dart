@@ -1,17 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/questionnaire_provider.dart';
 import '../providers/auth_provider.dart';
-//import 'notifications_page.dart';
-//import 'profile_page.dart';
-import 'settings_page.dart';
-import 'explore_careers_page.dart';
-import 'universities_page.dart';
-import 'preparation_guide_page.dart';
-import 'questionnaire_page.dart';
-import 'questionnaire_results_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -46,18 +37,15 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _startEvaluation() async {
     print('🚀 Botón "Comenzar Evaluación" presionado');
-    
+
     try {
       final provider = context.read<QuestionnaireProvider>();
       print('📋 Provider obtenido: ${provider.runtimeType}');
-      
-      // Mostrar loading
+
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const Center(
-          child: CircularProgressIndicator(),
-        ),
+        builder: (context) => const Center(child: CircularProgressIndicator()),
       );
 
       print('🔍 Verificando sesión en progreso...');
@@ -68,40 +56,37 @@ class _HomePageState extends State<HomePage> {
         print('🆕 Iniciando nueva sesión...');
         final started = await provider.startNewSession();
         print('✅ Nueva sesión iniciada: $started');
-        
+
         if (!started) {
-          Navigator.pop(context); // Cerrar loading
+          Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error al iniciar evaluación: ${provider.errorMessage}'),
-              backgroundColor: AppColors.error600,
+              content: Text(
+                'Error al iniciar evaluación: ${provider.errorMessage}',
+              ),
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
           return;
         }
       }
 
-      Navigator.pop(context); // Cerrar loading
+      Navigator.pop(context);
 
       if (mounted) {
-        print('🎯 Navegando a QuestionnaireePage...');
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const QuestionnairePage(),
-          ),
-        );
-        print('✅ Navegación ejecutada');
+        print('Navegando a QuestionnairePage...');
+        context.push('/questionnaire');
+        print('Navegación ejecutada');
       }
     } catch (e) {
-      Navigator.pop(context); // Cerrar loading si está abierto
-      print('❌ Error en _startEvaluation: $e');
-      
+      Navigator.pop(context);
+      print('Error en _startEvaluation: $e');
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error: $e'),
-            backgroundColor: AppColors.error600,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -114,18 +99,18 @@ class _HomePageState extends State<HomePage> {
     final questionnaireProvider = context.watch<QuestionnaireProvider>();
     final user = authProvider.user;
     final hasCompletedEvaluation = questionnaireProvider.isCompleted;
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     if (user != null && user.isTutor && !user.isRegistrationComplete) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(context).pushReplacementNamed('/student-register');
+        context.go('/student-register');
       });
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
-      backgroundColor: AppColors.gray50,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
         title: Row(
@@ -134,17 +119,17 @@ class _HomePageState extends State<HomePage> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: AppColors.primary50,
+                color: colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.primary600, width: 1.5),
+                border: Border.all(color: colorScheme.primary, width: 1.5),
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
                   'O+',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.primary600,
+                    color: colorScheme.primary,
                   ),
                 ),
               ),
@@ -152,8 +137,8 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(width: 12),
             Text(
               'ORIENTATE+',
-              style: AppTextStyles.h4.copyWith(
-                color: AppColors.primary600,
+              style: textTheme.titleLarge?.copyWith(
+                color: colorScheme.primary,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -166,12 +151,8 @@ class _HomePageState extends State<HomePage> {
           children: [
             Container(
               width: double.infinity,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [AppColors.primary50, AppColors.white],
-                ),
+              decoration: BoxDecoration(
+                color: colorScheme.primaryContainer.withOpacity(0.3),
               ),
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -179,13 +160,13 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Text(
                     'Bienvenido, ${user?.name ?? 'Usuario'}',
-                    style: AppTextStyles.h2,
+                    style: textTheme.displayMedium,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Descubre tu carrera ideal',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.gray600,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -201,19 +182,13 @@ class _HomePageState extends State<HomePage> {
 
             if (hasCompletedEvaluation &&
                 questionnaireProvider.results != null) ...[
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    Text(
-                      'Tus Resultados Vocacionales',
-                      style: AppTextStyles.h3,
-                    ),
-                  ],
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  'Tus Resultados Vocacionales',
+                  style: textTheme.headlineMedium,
                 ),
               ),
-              const SizedBox(height: 16),
-
               const SizedBox(height: 16),
 
               Padding(
@@ -224,9 +199,9 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 24),
             ],
 
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text('Recursos Útiles', style: AppTextStyles.h3),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text('Recursos Útiles', style: textTheme.headlineMedium),
             ),
             const SizedBox(height: 16),
 
@@ -234,23 +209,13 @@ class _HomePageState extends State<HomePage> {
               'Universidades recomendadas',
               'Explora opciones en tu estado',
               Icons.apartment,
-              () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const UniversitiesPage()),
-                );
-              },
+              () => context.push('/universities'),
             ),
             _buildResourceCard(
               'Guía de preparación',
               'Tips para elegir tu carrera perfecta',
               Icons.lightbulb_outline,
-              () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const PreparationGuidePage(),
-                  ),
-                );
-              },
+              () => context.push('/preparation-guide'),
             ),
 
             const SizedBox(height: 80),
@@ -258,35 +223,22 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primary600,
-        unselectedItemColor: AppColors.gray400,
         currentIndex: 0,
         onTap: (index) {
           switch (index) {
             case 0:
+              context.push('/explore-careers');
               break;
             case 1:
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ExploreCareersPage()),
-              );
-              break;
-            case 2:
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const SettingsPage()));
+              context.push('/settings');
               break;
           }
         },
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: 'Inicio',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.explore_outlined),
             label: 'Explorar',
-          ),          
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings_outlined),
             label: 'Ajustes',
@@ -297,14 +249,17 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildStartEvaluationCard() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.primary600, width: 2),
+        color: colorScheme.surface,
+        border: Border.all(color: colorScheme.primary, width: 2),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withOpacity(0.06),
+            color: colorScheme.shadow.withOpacity(0.06),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -321,13 +276,13 @@ class _HomePageState extends State<HomePage> {
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                    color: AppColors.primary100,
+                    color: colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.assignment_outlined,
                     size: 32,
-                    color: AppColors.primary600,
+                    color: colorScheme.primary,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -335,12 +290,15 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Evaluación Vocacional', style: AppTextStyles.h4),
+                      Text(
+                        'Evaluación Vocacional',
+                        style: textTheme.titleLarge,
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         'Descubre tu carrera ideal',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.gray600,
+                        style: textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -349,11 +307,11 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
             const SizedBox(height: 16),
-            
+
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: _startEvaluation, // Usar función separada
+                onPressed: _startEvaluation,
                 icon: const Icon(Icons.play_arrow),
                 label: const Text('Comenzar Evaluación'),
               ),
@@ -366,16 +324,15 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildCompletedEvaluationCard(QuestionnaireProvider provider) {
     final carrerasCount = provider.results?.recomendaciones.length ?? 3;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.primary600, AppColors.primary700],
-        ),
+        color: colorScheme.primary,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary600.withOpacity(0.3),
+            color: colorScheme.primary.withOpacity(0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -386,17 +343,21 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               children: [
-                Icon(Icons.check_circle, color: AppColors.white, size: 28),
-                SizedBox(width: 12),
+                Icon(
+                  Icons.check_circle,
+                  color: colorScheme.onPrimary,
+                  size: 28,
+                ),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     'Evaluación Completada',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.white,
+                      color: colorScheme.onPrimary,
                     ),
                   ),
                 ),
@@ -405,7 +366,7 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 16),
             Text(
               'Tienes $carrerasCount carreras altamente compatibles',
-              style: const TextStyle(fontSize: 14, color: AppColors.white),
+              style: TextStyle(fontSize: 14, color: colorScheme.onPrimary),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -420,17 +381,12 @@ class _HomePageState extends State<HomePage> {
                   }
 
                   if (provider.results != null && mounted) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const QuestionnaireResultsPage(),
-                      ),
-                    );
+                    context.push('/questionnaire-results');
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.white,
-                  foregroundColor: AppColors.primary600,
+                  backgroundColor: colorScheme.surface,
+                  foregroundColor: colorScheme.primary,
                 ),
                 child: const Text('Ver Resultados Completos'),
               ),
@@ -441,127 +397,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  /*Widget _buildCompatibilityChart(QuestionnaireProvider provider) {
-    final metadata = provider.results?.metadata ?? {};
-    final areaDetectada = metadata['area_detectada'] ?? 'Tecnología';
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.gray200),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.primary50,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.analytics_outlined,
-                  color: AppColors.primary600,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Tu Perfil Vocacional',
-                style: AppTextStyles.bodyLarge.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-
-          _buildSkillBar('Tecnología', 0.92, AppColors.primary600),
-          _buildSkillBar('Ciencias', 0.78, AppColors.secondary600),
-          _buildSkillBar('Negocios', 0.65, AppColors.accent600),
-
-          const SizedBox(height: 16),
-
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.success50,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.lightbulb_outline,
-                  color: AppColors.success600,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Tu perfil muestra alta compatibilidad con carreras de $areaDetectada',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.success700,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSkillBar(String label, double value, Color color) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                label,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Text(
-                '${(value * 100).toInt()}%',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: value,
-              minHeight: 8,
-              backgroundColor: AppColors.gray200,
-              valueColor: AlwaysStoppedAnimation<Color>(color),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-*/
   Widget _buildTopCareers(QuestionnaireProvider provider) {
     final recomendaciones = provider.results?.recomendaciones ?? [];
 
@@ -570,19 +405,16 @@ class _HomePageState extends State<HomePage> {
     }
 
     final top3 = recomendaciones.take(3).toList();
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     final icons = [Icons.computer, Icons.analytics, Icons.developer_board];
-    final colors = [
-      AppColors.primary600,
-      AppColors.secondary600,
-      AppColors.accent600,
-    ];
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.gray200),
+        border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -592,7 +424,7 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(width: 12),
               Text(
                 'Top 3 Carreras Recomendadas',
-                style: AppTextStyles.bodyLarge.copyWith(
+                style: textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -609,7 +441,6 @@ class _HomePageState extends State<HomePage> {
               carrera.carrera,
               (carrera.matchScore * 100).toInt(),
               icons[index % icons.length],
-              colors[index % colors.length],
             );
           }).toList(),
         ],
@@ -622,27 +453,32 @@ class _HomePageState extends State<HomePage> {
     String name,
     int compatibility,
     IconData icon,
-    Color color,
   ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
+        color: colorScheme.primaryContainer.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
       ),
       child: Row(
         children: [
           Container(
             width: 32,
             height: 32,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: colorScheme.primary,
+              shape: BoxShape.circle,
+            ),
             child: Center(
               child: Text(
                 '$rank',
-                style: const TextStyle(
-                  color: AppColors.white,
+                style: TextStyle(
+                  color: colorScheme.onPrimary,
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
                 ),
@@ -650,7 +486,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           const SizedBox(width: 12),
-          Icon(icon, color: color, size: 24),
+          Icon(icon, color: colorScheme.primary, size: 24),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -658,15 +494,15 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Text(
                   name,
-                  style: AppTextStyles.bodyMedium.copyWith(
+                  style: textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   '$compatibility% de compatibilidad',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: color,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colorScheme.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -684,11 +520,14 @@ class _HomePageState extends State<HomePage> {
     IconData icon,
     VoidCallback onTap,
   ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.gray200),
+        color: colorScheme.surface,
+        border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
@@ -696,20 +535,25 @@ class _HomePageState extends State<HomePage> {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: AppColors.primary50,
+            color: colorScheme.primaryContainer,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: AppColors.primary600),
+          child: Icon(icon, color: colorScheme.primary),
         ),
         title: Text(
           title,
-          style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+          style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         subtitle: Text(
           subtitle,
-          style: AppTextStyles.bodySmall.copyWith(color: AppColors.gray600),
+          style: textTheme.bodySmall?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+          ),
         ),
-        trailing: const Icon(Icons.chevron_right, color: AppColors.gray400),
+        trailing: Icon(
+          Icons.chevron_right,
+          color: colorScheme.onSurfaceVariant,
+        ),
         onTap: onTap,
       ),
     );

@@ -1,58 +1,111 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+import '../providers/questionnaire_provider.dart';
 
 class PreparationGuidePage extends StatelessWidget {
   const PreparationGuidePage({super.key});
 
+  Future<void> _startEvaluation(BuildContext context) async {
+    print('🚀 Botón "Comenzar Evaluación" presionado');
+    
+    try {
+      final provider = context.read<QuestionnaireProvider>();
+      print('📋 Provider obtenido: ${provider.runtimeType}');
+      
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      print('🔍 Verificando sesión en progreso...');
+      final restored = await provider.restoreInProgressSession();
+      print('📊 Sesión restaurada: $restored');
+
+      if (!restored) {
+        print('🆕 Iniciando nueva sesión...');
+        final started = await provider.startNewSession();
+        print('✅ Nueva sesión iniciada: $started');
+        
+        if (!started) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error al iniciar evaluación: ${provider.errorMessage}'),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+          );
+          return;
+        }
+      }
+
+      Navigator.pop(context);
+
+      print('🎯 Navegando a QuestionnairePage...');
+      context.push('/questionnaire');
+      print('✅ Navegación ejecutada');
+    } catch (e) {
+      Navigator.pop(context);
+      print('❌ Error en _startEvaluation: $e');
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: AppColors.gray50,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.gray900),
-          onPressed: () => Navigator.of(context).pop(),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
+          onPressed: () => context.pop(),
         ),
-        title: Text('Guía de Preparación', style: AppTextStyles.h4),
+        title: Text('Guía de Preparación', style: textTheme.titleLarge),
         centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Header
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppColors.secondary600, AppColors.secondary700],
-              ),
+              color: colorScheme.secondary,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               children: [
-                const Icon(
+                Icon(
                   Icons.lightbulb_outline,
-                  color: AppColors.white,
+                  color: colorScheme.onSecondary,
                   size: 48,
                 ),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'Tips para Elegir tu Carrera Perfecta',
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.white,
+                    color: colorScheme.onSecondary,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Una guía completa para tomar la mejor decisión',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.white,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSecondary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -62,8 +115,8 @@ class PreparationGuidePage extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          // Pasos
           _buildStep(
+            context,
             1,
             'Conócete a Ti Mismo',
             'Antes de elegir una carrera, es fundamental que te conozcas bien.',
@@ -74,10 +127,11 @@ class PreparationGuidePage extends StatelessWidget {
               '• Considera tu personalidad: ¿Prefieres trabajar solo o en equipo?',
             ],
             Icons.person_search,
-            AppColors.primary600,
+            colorScheme.primary,
           ),
 
           _buildStep(
+            context,
             2,
             'Investiga las Opciones',
             'Explora diferentes carreras y sus posibilidades.',
@@ -89,10 +143,11 @@ class PreparationGuidePage extends StatelessWidget {
               '• Asiste a ferias universitarias',
             ],
             Icons.search,
-            AppColors.secondary600,
+            colorScheme.secondary,
           ),
 
           _buildStep(
+            context,
             3,
             'Considera el Futuro',
             'Piensa en las tendencias del mercado laboral.',
@@ -104,10 +159,11 @@ class PreparationGuidePage extends StatelessWidget {
               '• Movilidad geográfica requerida',
             ],
             Icons.trending_up,
-            AppColors.accent600,
+            Colors.orange.shade600,
           ),
 
           _buildStep(
+            context,
             4,
             'Evalúa las Universidades',
             'No solo la carrera importa, también dónde la estudias.',
@@ -119,10 +175,11 @@ class PreparationGuidePage extends StatelessWidget {
               '• Ubicación y accesibilidad',
             ],
             Icons.school,
-            AppColors.warning600,
+            Colors.amber.shade600,
           ),
 
           _buildStep(
+            context,
             5,
             'Toma una Decisión Informada',
             'Con toda la información, es hora de decidir.',
@@ -134,18 +191,17 @@ class PreparationGuidePage extends StatelessWidget {
               '• Comprométete con tu elección',
             ],
             Icons.check_circle,
-            AppColors.success600,
+            Colors.green.shade600,
           ),
 
           const SizedBox(height: 24),
 
-          // Errores comunes
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.white,
+              color: colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.error700),
+              border: Border.all(color: colorScheme.error),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,76 +211,79 @@ class PreparationGuidePage extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppColors.error50,
+                        color: colorScheme.errorContainer,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.warning_amber,
-                        color: AppColors.error600,
+                        color: colorScheme.error,
                         size: 24,
                       ),
                     ),
                     const SizedBox(width: 12),
                     Text(
                       'Errores Comunes a Evitar',
-                      style: AppTextStyles.h4.copyWith(
-                        color: AppColors.error600,
+                      style: textTheme.titleLarge?.copyWith(
+                        color: colorScheme.error,
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
-                _buildErrorItem('Elegir solo por el dinero'),
-                _buildErrorItem('Seguir la presión familiar'),
-                _buildErrorItem('Escoger por tus amigos'),
-                _buildErrorItem('No investigar lo suficiente'),
-                _buildErrorItem('Ignorar tus verdaderos intereses'),
-                _buildErrorItem('Tomar la decisión a última hora'),
+                _buildErrorItem(context, 'Elegir solo por el dinero'),
+                _buildErrorItem(context, 'Seguir la presión familiar'),
+                _buildErrorItem(context, 'Escoger por tus amigos'),
+                _buildErrorItem(context, 'No investigar lo suficiente'),
+                _buildErrorItem(context, 'Ignorar tus verdaderos intereses'),
+                _buildErrorItem(context, 'Tomar la decisión a última hora'),
               ],
             ),
           ),
 
           const SizedBox(height: 24),
 
-          // Recursos adicionales
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.primary50,
+              color: colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.primary700),
+              border: Border.all(color: colorScheme.primary),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.auto_awesome,
-                      color: AppColors.primary600,
+                      color: colorScheme.primary,
                       size: 24,
                     ),
                     const SizedBox(width: 12),
                     Text(
                       'Recursos Adicionales',
-                      style: AppTextStyles.h4,
+                      style: textTheme.titleLarge,
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
                 _buildResourceItem(
+                  context,
                   'Realiza nuestra evaluación vocacional completa',
                   Icons.assignment_turned_in,
                 ),
                 _buildResourceItem(
+                  context,
                   'Lee testimonios de egresados exitosos',
                   Icons.people,
                 ),
                 _buildResourceItem(
+                  context,
                   'Explora universidades recomendadas',
                   Icons.school,
                 ),
                 _buildResourceItem(
+                  context,
                   'Consulta el catálogo completo de carreras',
                   Icons.library_books,
                 ),
@@ -234,23 +293,20 @@ class PreparationGuidePage extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          // CTA Final
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppColors.primary600, AppColors.primary700],
-              ),
+              color: colorScheme.primary,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               children: [
-                const Text(
+                Text(
                   '¿Listo para descubrir tu vocación?',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.white,
+                    color: colorScheme.onPrimary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -258,12 +314,10 @@ class PreparationGuidePage extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
+                    onPressed: () => _startEvaluation(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.white,
-                      foregroundColor: AppColors.primary600,
+                      backgroundColor: colorScheme.surface,
+                      foregroundColor: colorScheme.primary,
                     ),
                     child: const Text('Comenzar Evaluación'),
                   ),
@@ -279,20 +333,24 @@ class PreparationGuidePage extends StatelessWidget {
   }
 
   Widget _buildStep(
-      int number,
-      String title,
-      String description,
-      List<String> points,
-      IconData icon,
-      Color color,
-      ) {
+    BuildContext context,
+    int number,
+    String title,
+    String description,
+    List<String> points,
+    IconData icon,
+    Color color,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.gray200),
+        border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,8 +367,8 @@ class PreparationGuidePage extends StatelessWidget {
                 child: Center(
                   child: Text(
                     '$number',
-                    style: const TextStyle(
-                      color: AppColors.white,
+                    style: TextStyle(
+                      color: colorScheme.surface,
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
                     ),
@@ -324,7 +382,7 @@ class PreparationGuidePage extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: AppTextStyles.bodyLarge.copyWith(
+                      style: textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: color,
                       ),
@@ -332,8 +390,8 @@ class PreparationGuidePage extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       description,
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.gray600,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -348,8 +406,8 @@ class PreparationGuidePage extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 8),
               child: Text(
                 point,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.gray700,
+                style: textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
                   height: 1.5,
                 ),
               ),
@@ -360,23 +418,26 @@ class PreparationGuidePage extends StatelessWidget {
     );
   }
 
-  Widget _buildErrorItem(String text) {
+  Widget _buildErrorItem(BuildContext context, String text) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(
+          Icon(
             Icons.close,
-            color: AppColors.error600,
+            color: colorScheme.error,
             size: 20,
           ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               text,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.gray700,
+              style: textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurface,
               ),
             ),
           ),
@@ -385,18 +446,21 @@ class PreparationGuidePage extends StatelessWidget {
     );
   }
 
-  Widget _buildResourceItem(String text, IconData icon) {
+  Widget _buildResourceItem(BuildContext context, String text, IconData icon) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         children: [
-          Icon(icon, color: AppColors.primary600, size: 20),
+          Icon(icon, color: colorScheme.primary, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               text,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.primary700,
+              style: textTheme.bodySmall?.copyWith(
+                color: colorScheme.primary,
               ),
             ),
           ),

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
 
 class ReportProblemPage extends StatefulWidget {
   const ReportProblemPage({super.key});
@@ -37,7 +35,6 @@ class _ReportProblemPageState extends State<ReportProblemPage> {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
-      // Simular envío
       await Future.delayed(const Duration(seconds: 2));
 
       if (mounted) {
@@ -51,12 +48,12 @@ class _ReportProblemPageState extends State<ReportProblemPage> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.success50,
+                    color: Colors.green.shade50,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.check_circle,
-                    color: AppColors.success600,
+                    color: Colors.green.shade600,
                     size: 24,
                   ),
                 ),
@@ -86,16 +83,17 @@ class _ReportProblemPageState extends State<ReportProblemPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.gray900),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text('Reportar un Problema', style: AppTextStyles.h4),
+        title: Text('Reportar un Problema', style: textTheme.titleLarge),
         centerTitle: true,
       ),
       body: Form(
@@ -103,19 +101,18 @@ class _ReportProblemPageState extends State<ReportProblemPage> {
         child: ListView(
           padding: const EdgeInsets.all(24),
           children: [
-            // Icono
             Center(
               child: Container(
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: AppColors.error50,
+                  color: colorScheme.errorContainer,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.bug_report_outlined,
                   size: 40,
-                  color: AppColors.error600,
+                  color: colorScheme.error,
                 ),
               ),
             ),
@@ -124,7 +121,7 @@ class _ReportProblemPageState extends State<ReportProblemPage> {
 
             Text(
               'Ayúdanos a mejorar',
-              style: AppTextStyles.h3,
+              style: textTheme.headlineMedium,
               textAlign: TextAlign.center,
             ),
 
@@ -132,16 +129,15 @@ class _ReportProblemPageState extends State<ReportProblemPage> {
 
             Text(
               'Reporta cualquier problema o error que encuentres. Tu feedback es muy valioso.',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.gray600,
+              style: textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
 
             const SizedBox(height: 32),
 
-            // Categoría
-            Text('Categoría del problema', style: AppTextStyles.label),
+            Text('Categoría del problema', style: textTheme.labelLarge),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
               value: _selectedCategory,
@@ -161,8 +157,7 @@ class _ReportProblemPageState extends State<ReportProblemPage> {
 
             const SizedBox(height: 20),
 
-            // Título
-            Text('Título del problema', style: AppTextStyles.label),
+            Text('Título del problema', style: textTheme.labelLarge),
             const SizedBox(height: 8),
             TextFormField(
               controller: _titleController,
@@ -180,8 +175,7 @@ class _ReportProblemPageState extends State<ReportProblemPage> {
 
             const SizedBox(height: 20),
 
-            // Descripción
-            Text('Descripción detallada', style: AppTextStyles.label),
+            Text('Descripción detallada', style: textTheme.labelLarge),
             const SizedBox(height: 8),
             TextFormField(
               controller: _descriptionController,
@@ -206,91 +200,88 @@ class _ReportProblemPageState extends State<ReportProblemPage> {
 
             const SizedBox(height: 24),
 
-            // Tips para reportar
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.info50,
+                color: Colors.blue.shade50,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.info700),
+                border: Border.all(color: Colors.blue.shade200),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.tips_and_updates_outlined,
-                        color: AppColors.info600,
+                        color: Colors.blue.shade600,
                         size: 20,
                       ),
                       const SizedBox(width: 8),
                       Text(
                         'Tips para un buen reporte',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.info700,
+                        style: textTheme.bodySmall?.copyWith(
+                          color: Colors.blue.shade700,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  _buildTip('Sé específico sobre el problema'),
-                  _buildTip('Menciona los pasos para reproducirlo'),
-                  _buildTip('Incluye capturas de pantalla si es posible'),
-                  _buildTip('Indica tu dispositivo y sistema operativo'),
+                  _buildTip('Sé específico sobre el problema', Colors.blue.shade700),
+                  _buildTip('Menciona los pasos para reproducirlo', Colors.blue.shade700),
+                  _buildTip('Incluye capturas de pantalla si es posible', Colors.blue.shade700),
+                  _buildTip('Indica tu dispositivo y sistema operativo', Colors.blue.shade700),
                 ],
               ),
             ),
 
             const SizedBox(height: 24),
 
-            // Información del sistema
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.gray50,
+                color: colorScheme.surfaceVariant.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.gray200),
+                border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Información del Sistema',
-                    style: AppTextStyles.bodySmall.copyWith(
+                    style: textTheme.bodySmall?.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: AppColors.gray700,
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Esta información se incluirá automáticamente:',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.gray600,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  _buildSystemInfo('Versión de la app', '1.0.0'),
-                  _buildSystemInfo('Sistema operativo', 'Android 14'),
-                  _buildSystemInfo('Dispositivo', 'Xiaomi Redmi Note 12'),
+                  _buildSystemInfo('Versión de la app', '1.0.0', textTheme, colorScheme),
+                  _buildSystemInfo('Sistema operativo', 'Android 14', textTheme, colorScheme),
+                  _buildSystemInfo('Dispositivo', 'Xiaomi Redmi Note 12', textTheme, colorScheme),
                 ],
               ),
             ),
 
             const SizedBox(height: 32),
 
-            // Botón enviar
             ElevatedButton.icon(
               onPressed: _isLoading ? null : _submitReport,
               icon: _isLoading
-                  ? const SizedBox(
+                  ? SizedBox(
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    AppColors.white,
+                    colorScheme.onPrimary,
                   ),
                 ),
               )
@@ -305,18 +296,18 @@ class _ReportProblemPageState extends State<ReportProblemPage> {
     );
   }
 
-  Widget _buildTip(String text) {
+  Widget _buildTip(String text, Color textColor) {
     return Padding(
       padding: const EdgeInsets.only(top: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('• ', style: TextStyle(color: AppColors.info700)),
+          Text('• ', style: TextStyle(color: textColor)),
           Expanded(
             child: Text(
               text,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.info700,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: textColor,
               ),
             ),
           ),
@@ -325,21 +316,21 @@ class _ReportProblemPageState extends State<ReportProblemPage> {
     );
   }
 
-  Widget _buildSystemInfo(String label, String value) {
+  Widget _buildSystemInfo(String label, String value, TextTheme textTheme, ColorScheme colorScheme) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         children: [
           Text(
             '$label: ',
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.gray600,
+            style: textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
           Text(
             value,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.gray900,
+            style: textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurface,
               fontWeight: FontWeight.w600,
             ),
           ),

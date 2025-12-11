@@ -4,7 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../providers/questionnaire_provider.dart';
 import '../providers/auth_provider.dart';
-import 'notifications_page.dart';
+//import 'notifications_page.dart';
 //import 'profile_page.dart';
 import 'settings_page.dart';
 import 'explore_careers_page.dart';
@@ -201,43 +201,18 @@ class _HomePageState extends State<HomePage> {
 
             if (hasCompletedEvaluation &&
                 questionnaireProvider.results != null) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: [
                     Text(
                       'Tus Resultados Vocacionales',
                       style: AppTextStyles.h3,
                     ),
-                    const Spacer(),
-                    TextButton(
-                      onPressed: () async {
-                        final sessions = await questionnaireProvider
-                            .getCompletedSessions();
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                '${sessions.length} evaluaciones completadas',
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                      child: Text(
-                        'Ver todo',
-                        style: TextStyle(color: AppColors.primary600),
-                      ),
-                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 16),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: _buildCompatibilityChart(questionnaireProvider),
-              ),
 
               const SizedBox(height: 16),
 
@@ -249,8 +224,8 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 24),
             ],
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
               child: Text('Recursos Útiles', style: AppTextStyles.h3),
             ),
             const SizedBox(height: 16),
@@ -466,7 +441,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildCompatibilityChart(QuestionnaireProvider provider) {
+  /*Widget _buildCompatibilityChart(QuestionnaireProvider provider) {
     final metadata = provider.results?.metadata ?? {};
     final areaDetectada = metadata['area_detectada'] ?? 'Tecnología';
 
@@ -586,7 +561,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
+*/
   Widget _buildTopCareers(QuestionnaireProvider provider) {
     final recomendaciones = provider.results?.recomendaciones ?? [];
 
@@ -614,18 +589,6 @@ class _HomePageState extends State<HomePage> {
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.warning50,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.emoji_events,
-                  color: AppColors.warning600,
-                  size: 20,
-                ),
-              ),
               const SizedBox(width: 12),
               Text(
                 'Top 3 Carreras Recomendadas',
@@ -710,7 +673,6 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: AppColors.gray400),
         ],
       ),
     );

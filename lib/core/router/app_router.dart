@@ -1,12 +1,12 @@
 import 'package:go_router/go_router.dart';
 import 'app_routes.dart';
-import '../../feature/Users/presentation/providers/auth_provider.dart';
-import '../../feature/Users/presentation/pages/splash_page.dart';
-import '../../feature/Users/presentation/pages/login_page.dart';
-import '../../feature/Users/presentation/pages/register_adult_page.dart';
-import '../../feature/Users/presentation/pages/tutor_register_page.dart';
-import '../../feature/Users/presentation/pages/student_register_page.dart';
-import '../../feature/Users/presentation/pages/home_page.dart';
+import '../../feature/user/presentation/providers/auth_provider.dart';
+import '../../feature/user/presentation/pages/splash_page.dart';
+import '../../feature/user/presentation/pages/login_page.dart';
+import '../../feature/user/presentation/pages/register_adult_page.dart';
+import '../../feature/user/presentation/pages/tutor_register_page.dart';
+import '../../feature/user/presentation/pages/student_register_page.dart';
+import '../../feature/user/presentation/pages/home_page.dart';
 
 class AppRouter {
   static GoRouter createRouter(AuthProvider authProvider) {

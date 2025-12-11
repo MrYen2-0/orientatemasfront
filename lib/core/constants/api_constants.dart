@@ -1,5 +1,5 @@
 class ApiConstants {
-  static const String baseUrl = 'http://192.168.0.3:4000';
+  static const String baseUrl = 'https://api-gateway-w3zd.onrender.com';
 
   static const String habitsEndpoint = baseUrl;
 

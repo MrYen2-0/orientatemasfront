@@ -39,8 +39,6 @@ class QuestionnaireResultsPage extends StatelessWidget {
                 if (results.mensajeMotivacional != null && results.mensajeMotivacional!.isNotEmpty)
                   _buildMotivationalSection(context, results.mensajeMotivacional!),
                 
-                _buildCapacidadSection(context, results),
-                
                 _buildRecommendationsSection(context, results.recomendaciones),
                 
                 _buildActionButtons(context),
@@ -230,94 +228,6 @@ class QuestionnaireResultsPage extends StatelessWidget {
                   fontStyle: FontStyle.italic,
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCapacidadSection(BuildContext context, entities.QuestionnaireResults results) {
-    final theme = Theme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.trending_up,
-                    color: theme.colorScheme.primary,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Tu Perfil Académico',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Capacidad Académica',
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                      Text(
-                        '${(results.capacidadAcademica * 100).toStringAsFixed(1)}%',
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Categoría',
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.secondaryContainer,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          results.categoria.toUpperCase(),
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.onSecondaryContainer,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              if (results.ramaUniversitaria != null && results.ramaUniversitaria!.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Text(
-                  'Rama Recomendada: ${results.ramaUniversitaria}',
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
             ],
           ),
         ),
@@ -590,15 +500,6 @@ class QuestionnaireResultsPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          FilledButton.icon(
-            onPressed: () => _finishAndGoHome(context),
-            icon: const Icon(Icons.home),
-            label: const Text('Volver al Inicio'),
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.all(16),
-            ),
-          ),
-          const SizedBox(height: 8),
           OutlinedButton.icon(
             onPressed: () => _startNewTest(context),
             icon: const Icon(Icons.replay),

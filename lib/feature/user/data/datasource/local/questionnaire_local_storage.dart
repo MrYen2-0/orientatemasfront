@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:integradorfront/feature/Users/domain/entities/questionnaire_session.dart';
+import 'package:integradorfront/feature/user/domain/entities/questionnaire_session.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 

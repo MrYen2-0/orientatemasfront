@@ -63,7 +63,7 @@ class _SettingsPageState extends State<SettingsPage> {
             _buildMenuItem(
               icon: Icons.code_outlined,
               title: 'Versión 1.0.0',
-              subtitle: 'Última actualización: 20/10/2025',
+              subtitle: 'Última actualización: 10/12/2025',
               onTap: null,
               showArrow: false,
             ),

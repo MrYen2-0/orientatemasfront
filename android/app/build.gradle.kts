@@ -1,7 +1,18 @@
+import java.util.Properties
+import java.io.File
+
+// Carga de propiedades
+val flutterRoot = rootProject.projectDir.parentFile!!.absolutePath
+val localPropertiesFile = File(flutterRoot, "android/key.properties")
+val properties = Properties()
+
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.inputStream().use { properties.load(it) }
+}
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -19,11 +30,21 @@ android {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
+    signingConfigs {
+        create("release") {
+            // Se usa el operador ?. para evitar errores si el archivo properties está vacío
+            val keyStorePath = properties.getProperty("storeFile")
+            if (keyStorePath != null) {
+                storeFile = file(keyStorePath)
+                keyAlias = properties.getProperty("keyAlias")
+                storePassword = properties.getProperty("storePassword")
+                keyPassword = properties.getProperty("keyPassword")
+            }
+        }
+    }
+
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.integradorfront"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        applicationId = "com.softcode.orientatemas"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -31,10 +52,8 @@ android {
     }
 
     buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }

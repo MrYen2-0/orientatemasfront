@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
         await provider.loadResults(lastSession.sessionId);
       }
     } catch (e) {
-      print('Error checking existing session: $e');
+      print('Error checking exist ing session: $e');
     }
   }
 
